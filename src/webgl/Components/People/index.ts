@@ -4,7 +4,7 @@ import AbstractObject from "../../Abstract/AbstractObject"
 import { MainSceneContext } from "../../Scenes/MainScene"
 import fragmentShader from "./index.frag?raw"
 import vertexShader from "./index.vert?raw"
-import peopleImage from "../../assets/images/perso.png"
+import peopleImage from "../../../assets/images/perso.png"
 
 export default class People extends AbstractObject<MainSceneContext> {
   private positions: THREE.Vector3Tuple[]
