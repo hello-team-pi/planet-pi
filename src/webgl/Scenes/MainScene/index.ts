@@ -42,7 +42,7 @@ export default class MainScene extends AbstractObjectWithSize {
       0.01,
       1000,
     )
-    this.camera.position.z = 10
+    this.camera.position.z = 20
     this.onResize(window.innerWidth, window.innerHeight)
     new OrbitControls(this.camera, this.context.renderer.domElement)
   }
@@ -53,6 +53,7 @@ export default class MainScene extends AbstractObjectWithSize {
     const background = new Background(this.genContext())
     const planets = [new Planet(this.genContext(), new THREE.Vector3(), 2)]
     const people = new People(this.genContext(), planets[0])
+    this.tickingObjects.push(people)
     for (const planet of planets) {
       this.scene.add(planet.output)
     }

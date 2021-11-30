@@ -17,7 +17,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.initMesh()
   }
 
-  initMesh() {
+  private initMesh() {
     const geometry = new THREE.SphereBufferGeometry(this.radius, 32, 32)
     this.material = new THREE.ShaderMaterial({
       fragmentShader,

@@ -9,14 +9,15 @@ import Planet from "../Planet"
 import PeopleController from "./PeopleController"
 
 export default class People extends AbstractObject<MainSceneContext> {
-  private controllers: PeopleController[] = []
   private amount: number
   private maxAmount = 20_000
   private material: THREE.RawShaderMaterial
+  private planetMap: Map<Planet, PeopleController[]> = new Map()
+  private mesh: THREE.InstancedMesh
 
   constructor(context: MainSceneContext, startPlanet: Planet) {
     super(context)
-    this.initMesh(10, startPlanet)
+    this.initMesh(20, startPlanet)
   }
 
   private initMesh(startAmount: number, startPlanet: Planet) {
@@ -33,14 +34,21 @@ export default class People extends AbstractObject<MainSceneContext> {
     const instancedPeople = new THREE.InstancedMesh(geom, this.material, this.maxAmount)
     instancedPeople.count = this.amount
 
+    const controllers: PeopleController[] = []
     for (let index = 0; index < this.amount; index++) {
-      const controller = new PeopleController(Math.random() * Math.PI * 2, 0)
-      controller.setPosition(startPlanet, (m) => instancedPeople.setMatrixAt(index, m))
-      this.controllers.push(controller)
+      const controller = new PeopleController(
+        { rotation: Math.random() * Math.PI * 2, tilt: 0 },
+        index,
+      )
+
+      controller.setPosition(startPlanet, instancedPeople)
+      controllers.push(controller)
     }
+    this.planetMap.set(startPlanet, controllers)
 
     instancedPeople.instanceMatrix.needsUpdate = true
 
+    this.mesh = instancedPeople
     this.output = instancedPeople
     // this.output = new THREE.Mesh(new THREE.BoxBufferGeometry(), new THREE.MeshNormalMaterial())
   }
@@ -77,5 +85,17 @@ export default class People extends AbstractObject<MainSceneContext> {
     geometry.setAttribute("aOffset", new THREE.InstancedBufferAttribute(offsets, 3))
 
     return geometry
+  }
+
+  tick() {
+    for (const [planet, peoples] of this.planetMap.entries()) {
+      for (const people of peoples) {
+        people.collide(peoples)
+      }
+      for (const people of peoples) {
+        people.setPosition(planet, this.mesh)
+      }
+    }
+    this.mesh.instanceMatrix.needsUpdate = true
   }
 }
