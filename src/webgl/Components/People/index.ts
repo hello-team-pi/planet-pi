@@ -17,7 +17,7 @@ export default class People extends AbstractObject<MainSceneContext> {
 
   constructor(context: MainSceneContext, startPlanet: Planet) {
     super(context)
-    this.initMesh(20, startPlanet)
+    this.initMesh(30, startPlanet)
   }
 
   private initMesh(startAmount: number, startPlanet: Planet) {

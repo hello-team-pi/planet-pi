@@ -23,14 +23,27 @@ export default class PeopleController {
   }
 
   collide(otherPeople: PeopleController[]) {
+    // TODO : Increase Perf
     let value = 0
     for (const people of otherPeople) {
       const diff = this.planetPosition.rotation - people.planetPosition.rotation
       const factor = cremap(Math.abs(diff), [0, 0.5], [1, 0])
       value += Math.sign(diff) * factor
     }
+    for (const people of otherPeople) {
+      const compareRotation =
+        this.planetPosition.rotation > people.planetPosition.rotation
+          ? people.planetPosition.rotation + Math.PI * 2
+          : people.planetPosition.rotation - Math.PI * 2
+      const diff = this.planetPosition.rotation - compareRotation
+      const factor = cremap(Math.abs(diff), [0, 0.5], [1, 0])
+      value += Math.sign(diff) * factor
+    }
     // ;(window as any)[`people_${this.index}`] = value
-    this.nextPlanetPosition.rotation = this.planetPosition.rotation + value * 0.1
+    let newRotation = this.planetPosition.rotation + value * 0.1
+    if (newRotation > Math.PI * 2) newRotation -= Math.PI * 2
+    if (newRotation < 0) newRotation += Math.PI * 2
+    this.nextPlanetPosition.rotation = newRotation
   }
 
   setPosition(planet: Planet, mesh: THREE.InstancedMesh) {
