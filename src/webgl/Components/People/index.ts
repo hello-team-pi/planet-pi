@@ -7,12 +7,15 @@ import vertexShader from "./index.vert?raw"
 import peopleImage from "../../../assets/images/perso.png"
 import Planet from "../Planet"
 import PeopleController from "./PeopleController"
+import CursorController from "./CursorController"
 
 export default class People extends AbstractObject<MainSceneContext> {
   private amount: number
   private maxAmount = 20_000
   private material: THREE.RawShaderMaterial
   private planetMap: Map<Planet, PeopleController[]> = new Map()
+  private cursorPeoples: PeopleController[] = []
+  private cursor: CursorController
   private mesh: THREE.InstancedMesh
 
   constructor(context: MainSceneContext, startPlanet: Planet) {
@@ -41,10 +44,10 @@ export default class People extends AbstractObject<MainSceneContext> {
         index,
       )
 
-      controller.setPosition(startPlanet, instancedPeople)
       controllers.push(controller)
     }
-    this.planetMap.set(startPlanet, controllers)
+    this.cursorPeoples.push(...controllers)
+    // this.planetMap.set(startPlanet, controllers)
 
     instancedPeople.instanceMatrix.needsUpdate = true
 
@@ -90,10 +93,10 @@ export default class People extends AbstractObject<MainSceneContext> {
   tick() {
     for (const [planet, peoples] of this.planetMap.entries()) {
       for (const people of peoples) {
-        people.collide(peoples)
+        people.collideOnPlanet(peoples)
       }
       for (const people of peoples) {
-        people.setPosition(planet, this.mesh)
+        people.setPositionOnPlanet(planet, this.mesh)
       }
     }
     this.mesh.instanceMatrix.needsUpdate = true
