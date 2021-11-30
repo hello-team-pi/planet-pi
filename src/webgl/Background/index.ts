@@ -3,7 +3,7 @@ import vertexShader from "./index.vert?raw"
 import * as THREE from "three"
 import { MainSceneContext } from "../Scenes/MainScene"
 import { FolderApi } from "tweakpane"
-import AbstractObjectWithSize from "../abstract/AbstractObjectWithSize"
+import AbstractObjectWithSize from "../bstract/AbstractObjectWithSize"
 
 export default class Background extends AbstractObjectWithSize<MainSceneContext> {
   private params = {

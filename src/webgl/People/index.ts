@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import tuple from "../../utils/types/tuple"
-import AbstractObject from "../abstract/AbstractObject"
+import AbstractObject from "../bstract/AbstractObject"
 import { MainSceneContext } from "../Scenes/MainScene"
 import fragmentShader from "./index.frag?raw"
 import vertexShader from "./index.vert?raw"
@@ -76,12 +76,12 @@ export default class People extends AbstractObject<MainSceneContext> {
       // side: THREE.DoubleSide,
     })
 
-    const particles = new THREE.InstancedMesh(geom, this.material, this.maxAmount)
-    particles.count = this.amount
+    const instancedPeople = new THREE.InstancedMesh(geom, this.material, this.maxAmount)
+    instancedPeople.count = this.amount
 
-    particles.setMatrixAt(0, new THREE.Object3D().matrix)
+    instancedPeople.setMatrixAt(0, new THREE.Object3D().matrix)
 
-    this.output = particles
+    this.output = instancedPeople
     // this.output = new THREE.Mesh(new THREE.BoxBufferGeometry(), new THREE.MeshNormalMaterial())
   }
 }
