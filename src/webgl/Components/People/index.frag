@@ -9,16 +9,16 @@ float map(float value, float min1, float max1, float min2, float max2) {
 
 void main() {
   // Affine transformation on original UV of a vertex
-  float startU = vUvOffset.x; // The constants are to avoid black pixels
-  float endU = vUvOffset.y * 0.99;
-  float startV = vUvOffset.z;
-  float endV = vUvOffset.w;
+  // float startU = vUvOffset.x; // The constants are to avoid black pixels
+  // float endU = vUvOffset.y * 0.99;
+  // float startV = vUvOffset.z;
+  // float endV = vUvOffset.w;
 
-  // float offsetX = map(vUv, 0., 1., vUvOffset.x, vUvOffset.x + vUvOffset.z);
-  // float offsetX = map(vUv, 0., 1., vUvOffset.y, vUvOffset.y + vUvOffset.w);
+  float offsetX = map(vUv.x, 0., 1., vUvOffset.x, vUvOffset.x + vUvOffset.z);
+  float offsetY = map(vUv.y, 0., 1., vUvOffset.y, vUvOffset.y + vUvOffset.w);
 
   // vec4 texel = texture2D(uTexture, vec2(offsetX, offsetY));
-  vec4 texel = texture2D(uTexture, vUv);
+  vec4 texel = texture2D(uTexture, vec2(offsetX, offsetY));
   gl_FragColor = texel;
   // gl_FragColor = vec4(vec3(vUvOffset.x), 1.);
   // if (gl_FragColor.a < 0.9) discard;

@@ -1,36 +1,39 @@
 import { Vector2, Vector4 } from "three"
 
 type Rect = {
-  x: number,
-  y: number,
-  w: number,
+  x: number
+  y: number
+  w: number
   h: number
 }
 
 type Frame = {
-  frame: Rect,
+  frame: Rect
 }
 
 type Spritesheet = {
   frames: { [name: string]: Frame }
   meta: {
-    image: string,
+    image: string
     size: {
-      w: number,
+      w: number
       h: number
     }
   }
 }
 
 export default class SpritesheetParser {
-  offsets: { name: string, offset: Vector4 }[]
+  offsets: { name: string; offset: Vector4 }[]
   size: Vector2
 
   constructor(sheet: Spritesheet) {
     this.size = new Vector2(sheet.meta.size.w, sheet.meta.size.h)
     const frames = sheet.frames
     const entries = Object.entries(frames)
-    this.offsets = entries.map((entry) => ({ name: entry[0], offset: this.getVectorFrom(entry[1]) }))
+    this.offsets = entries.map((entry) => ({
+      name: entry[0],
+      offset: this.getVectorFrom(entry[1]),
+    }))
   }
 
   getVectorFrom(frame: Frame) {

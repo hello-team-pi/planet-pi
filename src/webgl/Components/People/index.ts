@@ -4,7 +4,8 @@ import AbstractObject from "../../Abstract/AbstractObject"
 import { MainSceneContext } from "../../Scenes/MainScene"
 import fragmentShader from "./index.frag?raw"
 import vertexShader from "./index.vert?raw"
-import peopleImage from "../../../assets/images/perso.png"
+// import peopleImage from "../../../assets/images/perso.png"
+import spritesheetImage from "../../../assets/spritesheets/spritesheet.png"
 import json from "../../../assets/spritesheets/spritesheet.json"
 import SpritesheetParser from "../SpritesheetParser"
 import Planet from "../Planet"
@@ -22,7 +23,7 @@ export default class People extends AbstractObject<MainSceneContext> {
 
   constructor(context: MainSceneContext, startPlanet: Planet) {
     super(context)
-    this.initMesh(50, startPlanet)
+    this.initMesh(1, startPlanet)
   }
 
   private initMesh(startAmount: number, startPlanet: Planet) {
@@ -32,7 +33,7 @@ export default class People extends AbstractObject<MainSceneContext> {
       fragmentShader,
       vertexShader,
       uniforms: {
-        uTexture: { value: new THREE.TextureLoader().load(peopleImage) },
+        uTexture: { value: new THREE.TextureLoader().load(spritesheetImage) },
       },
     })
 
@@ -48,8 +49,8 @@ export default class People extends AbstractObject<MainSceneContext> {
 
       controllers.push(controller)
     }
-    this.cursorPeoples.push(...controllers)
-    // this.planetMap.set(startPlanet, controllers)
+    // this.cursorPeoples.push(...controllers)
+    this.planetMap.set(startPlanet, controllers)
 
     instancedPeople.instanceMatrix.needsUpdate = true
 
@@ -91,11 +92,12 @@ export default class People extends AbstractObject<MainSceneContext> {
 
     // UV offsets
     const parser = new SpritesheetParser(json)
-    const uvOffsets = new Float32Array(this.amount * 3)
+    const uvOffsets = new Float32Array(this.amount * 4)
+
     for (let index = 0; index < this.amount; index++) {
       // const uvIndex = Math.round(index) % this.parser.offsets.length
-      const uvIndex = 0
-      const { x, y, z, w } = parser.offsets[uvIndex].offset
+      const spriteIndex = 0
+      const { x, y, z, w } = parser.offsets[spriteIndex].offset
       // console.log(x, y, z, w);
 
       uvOffsets[index * 4 + 0] = x
@@ -103,7 +105,7 @@ export default class People extends AbstractObject<MainSceneContext> {
       uvOffsets[index * 4 + 2] = z // width
       uvOffsets[index * 4 + 3] = w // heigth
     }
-    geometry.setAttribute("aUvOffset", new THREE.InstancedBufferAttribute(uvOffsets, 3))
+    geometry.setAttribute("aUvOffset", new THREE.InstancedBufferAttribute(uvOffsets, 4))
 
     return geometry
   }
