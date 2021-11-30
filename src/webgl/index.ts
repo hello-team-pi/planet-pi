@@ -13,14 +13,15 @@ export default class WebGL {
   constructor(htmlElement: HTMLCanvasElement) {
     this.clock = new THREE.Clock(true)
     this.setupRenderer(htmlElement)
-    this.mainScene = new MainScene(this.genContext())
     this.gui = new Pane({ title: "Planet PI" })
     this.gui.registerPlugin(EssentialsPlugin)
+    this.mainScene = new MainScene(this.genContext())
   }
 
   private genContext = () => ({
     clock: this.clock,
     renderer: this.renderer,
+    gui: this.gui,
   })
 
   private setupRenderer(htmlElement: HTMLCanvasElement) {
