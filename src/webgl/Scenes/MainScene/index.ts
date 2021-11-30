@@ -5,6 +5,7 @@ import AbstractObjectWithSize from "../../Abstract/AbstractObjectWithSize"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import Background from "../../Components/Background"
 import People from "../../Components/People"
+import Planet from "../../Components/Planet"
 
 export type MainSceneContext = WebGLAppContext & {
   scene: THREE.Scene
@@ -51,7 +52,11 @@ export default class MainScene extends AbstractObjectWithSize {
     this.scene.background = new THREE.Color(0x000000)
     const background = new Background(this.genContext())
     const people = new People(this.genContext())
-    this.scene.add(background.output, people.output)
+    const planets = [new Planet(this.genContext(), new THREE.Vector3(), 2)]
+    for (const planet of planets) {
+      this.scene.add(planet.output)
+    }
+    this.scene.add(background.output, people.output, )
   }
 
   public tick(...params: Parameters<AbstractObject["tick"]>) {
