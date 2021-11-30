@@ -17,7 +17,7 @@ export default class People extends AbstractObject<MainSceneContext> {
 
   constructor(context: MainSceneContext, startPlanet: Planet) {
     super(context)
-    this.initMesh(30, startPlanet)
+    this.initMesh(20, startPlanet)
   }
 
   private initMesh(startAmount: number, startPlanet: Planet) {
@@ -37,7 +37,7 @@ export default class People extends AbstractObject<MainSceneContext> {
     const controllers: PeopleController[] = []
     for (let index = 0; index < this.amount; index++) {
       const controller = new PeopleController(
-        { rotation: Math.random() * Math.PI * 2, tilt: 0 },
+        { rotation: Math.random() * Math.PI * 2, tilt: Math.random() - 0.5 },
         index,
       )
 
