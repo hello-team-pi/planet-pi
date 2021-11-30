@@ -1,6 +1,6 @@
 import * as THREE from "three"
 import tuple from "../../utils/types/tuple"
-import AbstractObject from "../bstract/AbstractObject"
+import AbstractObject from "../Abstract/AbstractObject"
 import { MainSceneContext } from "../Scenes/MainScene"
 import fragmentShader from "./index.frag?raw"
 import vertexShader from "./index.vert?raw"
