@@ -2,6 +2,21 @@
 # yarn lockfile v1
 
 
+"@tweakpane/core@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@tweakpane/core/-/core-1.0.7.tgz#cfb19b0d8475d74681bacc94078ca9c6dd2496a2"
+  integrity sha512-u7xeU9cgxNiL0dOnF+lCg3Ik0qjOOUWWIzuIUqzETyRm8Gsf2GVnz1UBmeWHzIZtS+UdhP+bU1Fgfj4DEx71Mg==
+
+"@tweakpane/plugin-essentials@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@tweakpane/plugin-essentials/-/plugin-essentials-0.1.4.tgz#144b54dfe274bb1c161285c358268573e039cb99"
+  integrity sha512-beJWDrTo6a29eh1L5AFsiybsiWL2BFMN+49dwAzccnR7vr6uXy3qxJIZVr3J91KXZwDEg1XZ+ZW301Sz+xTBqw==
+
+"@types/stats.js@^0.17.0":
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/@types/stats.js/-/stats.js-0.17.0.tgz#0ed81d48e03b590c24da85540c1d952077a9fe20"
+  integrity sha512-9w+a7bR8PeB0dCT/HBULU2fMqf6BAzvKbxFboYhmDtDkKPiyXYbjoe2auwsXlEFI7CFNMF1dCv3dFH5Poy9R1w==
+
 "@types/three@^0.134.0":
   version "0.134.0"
   resolved "https://registry.yarnpkg.com/@types/three/-/three-0.134.0.tgz#22ae9892f4490faaf35f0ccea127df18407b8ab3"
@@ -183,10 +198,20 @@ source-map-js@^1.0.1:
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.1.tgz#a1741c131e3c77d048252adfa24e23b908670caf"
   integrity sha512-4+TN2b3tqOCd/kaGRJ/sTYA0tR0mdXx26ipdolxcwtJVqEnqNYvlCAt1q3ypy4QMlYus+Zh34RNtYLoq2oQ4IA==
 
+stats.js@^0.17.0:
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/stats.js/-/stats.js-0.17.0.tgz#b1c3dc46d94498b578b7fd3985b81ace7131cc7d"
+  integrity sha1-scPcRtlEmLV4t/05hbgaznExzH0=
+
 three@^0.135.0:
   version "0.135.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.135.0.tgz#cff4ec8edd3c51ce9bc7e88d13e8eafed4d0ddfc"
   integrity sha512-kuEpuuxRzLv0MDsXai9huCxOSQPZ4vje6y0gn80SRmQvgz6/+rI0NAvCRAw56zYaWKMGMfqKWsxF9Qa2Z9xymQ==
+
+tweakpane@^3.0.6:
+  version "3.0.6"
+  resolved "https://registry.yarnpkg.com/tweakpane/-/tweakpane-3.0.6.tgz#8e440ea71094a85239f32e376e5417b9338d1bdd"
+  integrity sha512-LKl2Hau20bjslDQUB96GdNJLprwwEMkn/B/iN2XjWG+0iOvCBW4XiynTks+RUjU4bXhSI3VLBujKDIsuzDQg4g==
 
 typescript@^4.3.2:
   version "4.5.2"
