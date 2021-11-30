@@ -28,7 +28,7 @@ export default class PeopleController {
     let value = 0
     for (const people of otherPeople) {
       const diff = this.planetPosition.rotation - people.planetPosition.rotation
-      const factor = Easing.Exponential.Out(cremap(Math.abs(diff), [0, 2], [1, 0]))
+      const factor = Easing.Exponential.Out(cremap(Math.abs(diff), [0, 0.2], [1, 0]))
       value += Math.sign(diff) * factor
     }
     for (const people of otherPeople) {
@@ -37,11 +37,12 @@ export default class PeopleController {
           ? people.planetPosition.rotation + Math.PI * 2
           : people.planetPosition.rotation - Math.PI * 2
       const diff = this.planetPosition.rotation - compareRotation
-      const factor = Easing.Exponential.Out(cremap(Math.abs(diff), [0, 2], [1, 0]))
+      const factor = Easing.Exponential.Out(cremap(Math.abs(diff), [0, 0.2], [1, 0]))
       value += Math.sign(diff) * factor
     }
     // ;(window as any)[`people_${this.index}`] = value
-    let newRotation = this.planetPosition.rotation + value * 0.005
+    const clampValue = Math.sign(value) * (Math.abs(value) > 0.2 ? 2 : 0)
+    let newRotation = this.planetPosition.rotation + clampValue * 0.005
     if (newRotation > Math.PI * 2) newRotation -= Math.PI * 2
     if (newRotation < 0) newRotation += Math.PI * 2
     this.nextPlanetPosition.rotation = newRotation
