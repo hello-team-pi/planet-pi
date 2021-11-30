@@ -15,6 +15,7 @@
   "dependencies": {
     "@tweakpane/core": "^1.0.7",
     "@tweakpane/plugin-essentials": "^0.1.4",
+    "easing-functions": "^1.0.1",
     "stats.js": "^0.17.0",
     "three": "^0.135.0",
     "tweakpane": "^3.0.6"

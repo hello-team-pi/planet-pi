@@ -1,5 +1,5 @@
-import AbstractObject from "../../Abstract/AbstractObject";
-import { MainSceneContext } from "../../Scenes/MainScene";
+import AbstractObject from "../../Abstract/AbstractObject"
+import { MainSceneContext } from "../../Scenes/MainScene"
 import fragmentShader from "./index.frag?raw"
 import vertexShader from "./index.vert?raw"
 import planetTexture from "../../../assets/images/planet-texture.jpg"
@@ -18,9 +18,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.initMesh()
   }
 
-  initMesh() {
-    const geometry = new THREE.SphereBufferGeometry(1, 32, 32)
-
+  private initMesh() {
+    const geometry = new THREE.SphereBufferGeometry(this.radius, 32, 32)
     this.material = new THREE.ShaderMaterial({
       fragmentShader,
       vertexShader,

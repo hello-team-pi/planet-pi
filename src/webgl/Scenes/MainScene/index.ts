@@ -42,7 +42,7 @@ export default class MainScene extends AbstractObjectWithSize {
       0.01,
       1000,
     )
-    this.camera.position.z = 10
+    this.camera.position.z = 20
     this.onResize(window.innerWidth, window.innerHeight)
     new OrbitControls(this.camera, this.context.renderer.domElement)
   }
@@ -51,12 +51,13 @@ export default class MainScene extends AbstractObjectWithSize {
     this.scene = new THREE.Scene()
     this.scene.background = new THREE.Color(0x000000)
     const background = new Background(this.genContext())
-    const people = new People(this.genContext())
     const planets = [new Planet(this.genContext(), new THREE.Vector3(), 2)]
+    const people = new People(this.genContext(), planets[0])
+    this.tickingObjects.push(people)
     for (const planet of planets) {
       this.scene.add(planet.output)
     }
-    this.scene.add(background.output, people.output, )
+    this.scene.add(background.output, people.output)
   }
 
   public tick(...params: Parameters<AbstractObject["tick"]>) {
