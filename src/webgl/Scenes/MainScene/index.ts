@@ -51,12 +51,12 @@ export default class MainScene extends AbstractObjectWithSize {
     this.scene = new THREE.Scene()
     this.scene.background = new THREE.Color(0x000000)
     const background = new Background(this.genContext())
-    const people = new People(this.genContext())
     const planets = [new Planet(this.genContext(), new THREE.Vector3(), 2)]
+    const people = new People(this.genContext(), planets[0])
     for (const planet of planets) {
       this.scene.add(planet.output)
     }
-    this.scene.add(background.output, people.output, )
+    this.scene.add(background.output, people.output)
   }
 
   public tick(...params: Parameters<AbstractObject["tick"]>) {
