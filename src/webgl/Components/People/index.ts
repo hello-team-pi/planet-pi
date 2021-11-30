@@ -5,6 +5,8 @@ import { MainSceneContext } from "../../Scenes/MainScene"
 import fragmentShader from "./index.frag?raw"
 import vertexShader from "./index.vert?raw"
 import peopleImage from "../../../assets/images/perso.png"
+import json from "../../../assets/spritesheets/spritesheet.json"
+import SpritesheetParser from "../SpritesheetParser"
 
 export default class People extends AbstractObject<MainSceneContext> {
   private positions: THREE.Vector3Tuple[]
@@ -61,6 +63,22 @@ export default class People extends AbstractObject<MainSceneContext> {
       offsets[index * 3 + 2] = Math.cos(theta) * r + center[1]
     }
     geometry.setAttribute("aOffset", new THREE.InstancedBufferAttribute(offsets, 3))
+
+    // UV offsets
+    const parser = new SpritesheetParser(json)
+    const uvOffsets = new Float32Array(this.amount * 3)
+    for (let index = 0; index < this.amount; index++) {
+      // const uvIndex = Math.round(index) % this.parser.offsets.length
+      const uvIndex = 0
+      const { x, y, z, w } = parser.offsets[uvIndex].offset
+      // console.log(x, y, z, w);
+
+      uvOffsets[index * 4 + 0] = x
+      uvOffsets[index * 4 + 1] = y
+      uvOffsets[index * 4 + 2] = z // width
+      uvOffsets[index * 4 + 3] = w // heigth
+    }
+    geometry.setAttribute("aUvOffset", new THREE.InstancedBufferAttribute(uvOffsets, 3))
 
     return geometry
   }
