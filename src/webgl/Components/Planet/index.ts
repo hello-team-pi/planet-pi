@@ -25,7 +25,6 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       uniforms: {
         uTexture: { value: new THREE.TextureLoader().load(planetTexture) },
       },
-      side: THREE.BackSide,
     })
 
     this.output = new THREE.Mesh(geometry, this.material)
