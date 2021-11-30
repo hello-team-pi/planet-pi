@@ -15,7 +15,7 @@ void main() {
   // float endV = vUvOffset.w;
 
   float offsetX = map(vUv.x, 0., 1., vUvOffset.x, vUvOffset.x + vUvOffset.z);
-  float offsetY = map(vUv.y, 0., 1., vUvOffset.y, vUvOffset.y + vUvOffset.w);
+  float offsetY = 1. - map(vUv.y, 1., 0., vUvOffset.y, vUvOffset.y + vUvOffset.w);
 
   // vec4 texel = texture2D(uTexture, vec2(offsetX, offsetY));
   vec4 texel = texture2D(uTexture, vec2(offsetX, offsetY));
