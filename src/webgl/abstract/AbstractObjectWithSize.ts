@@ -1,16 +1,16 @@
-import { WebGLAppContext } from '..'
-import WindowSize from '../../utils/page/WindowSize'
-import AbstractObject from './AbstractObject'
+import { WebGLAppContext } from ".."
+import WindowSize from "../../utils/page/WindowSize"
+import AbstractObject from "./AbstractObject"
 
 export default abstract class AbstractObjectWithSize<
-  T extends WebGLAppContext = WebGLAppContext
+  T extends WebGLAppContext = WebGLAppContext,
 > extends AbstractObject<T> {
   protected windowSize = new WindowSize()
 
   constructor(context: T) {
     super(context)
     this.handleResize = this.handleResize.bind(this)
-    this.toUnbind(this.windowSize.state.__onChange('height', this.handleResize))
+    this.toUnbind(this.windowSize.state.__onChange("height", this.handleResize))
   }
 
   private handleResize() {

@@ -1,6 +1,6 @@
-import { WebGLAppContext } from '..'
-import AbstractObject from './AbstractObject'
-import * as THREE from 'three'
+import { WebGLAppContext } from ".."
+import AbstractObject from "./AbstractObject"
+import * as THREE from "three"
 
 class EntryPoint<T extends WebGLAppContext = WebGLAppContext> extends AbstractObject<T> {
   public output: THREE.Object3D
@@ -31,7 +31,7 @@ class EntryPoint<T extends WebGLAppContext = WebGLAppContext> extends AbstractOb
     this.output.remove(object.output)
   }
 
-  public tick(...params: Parameters<AbstractObject['tick']>) {
+  public tick(...params: Parameters<AbstractObject["tick"]>) {
     for (const child of this.children) child.tick(...params)
   }
 }

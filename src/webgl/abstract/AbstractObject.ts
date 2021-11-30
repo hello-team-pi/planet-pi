@@ -1,4 +1,4 @@
-import { WebGLAppContext } from '..'
+import { WebGLAppContext } from ".."
 
 export default abstract class AbstractObject<T extends WebGLAppContext = WebGLAppContext> {
   protected context: T
