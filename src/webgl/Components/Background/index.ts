@@ -1,9 +1,9 @@
 import fragmentShader from "./index.frag?raw"
 import vertexShader from "./index.vert?raw"
 import * as THREE from "three"
-import { MainSceneContext } from "../Scenes/MainScene"
+import { MainSceneContext } from "../../Scenes/MainScene"
 import { FolderApi } from "tweakpane"
-import AbstractObjectWithSize from "../Abstract/AbstractObjectWithSize"
+import AbstractObjectWithSize from "../../Abstract/AbstractObjectWithSize"
 
 export default class Background extends AbstractObjectWithSize<MainSceneContext> {
   private params = {

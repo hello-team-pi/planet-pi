@@ -3,8 +3,8 @@ import { WebGLAppContext } from "../.."
 import AbstractObject from "../../Abstract/AbstractObject"
 import AbstractObjectWithSize from "../../Abstract/AbstractObjectWithSize"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
-import Background from "../../Background"
-import People from "../../People"
+import Background from "../../Components/Background"
+import People from "../../Components/People"
 
 export type MainSceneContext = WebGLAppContext & {
   scene: THREE.Scene
