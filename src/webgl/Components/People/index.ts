@@ -33,7 +33,7 @@ export default class People extends AbstractObject<MainSceneContext> {
 
   private initMesh(startAmount: number, startPlanet: Planet) {
     this.amount = startAmount
-    this.peopleMesh = new PeopleMesh(1_000)
+    this.peopleMesh = new PeopleMesh(1_000, this.context)
     this.peopleMesh.mesh.count = this.amount
 
     const controllers: PeopleController[] = []

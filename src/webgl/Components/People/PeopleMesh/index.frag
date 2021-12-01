@@ -1,4 +1,7 @@
 uniform sampler2D uTexture;
+uniform vec3 uBodyColor;
+uniform vec3 uHeadColor;
+uniform vec3 uMouthColor;
 
 varying vec2 vUv;
 varying vec4 vUvOffset;
@@ -12,6 +15,10 @@ void main() {
   float offsetY = 1. - map(vUv.y, 1., 0., vUvOffset.y, vUvOffset.y + vUvOffset.w);
 
   vec4 texel = texture2D(uTexture, vec2(offsetX, offsetY));
-  gl_FragColor = texel;
+  vec3 color = uBodyColor;
+  color = mix(color, uHeadColor, texel.r);
+  color = mix(color, uMouthColor, texel.b);
+
+  gl_FragColor = vec4(color, texel.a);
   if (gl_FragColor.a < 0.9) discard;
 }

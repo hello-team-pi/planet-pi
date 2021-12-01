@@ -2,13 +2,29 @@ import * as THREE from "three"
 import fragmentShader from "./index.frag?raw"
 import vertexShader from "./index.vert?raw"
 import spritesheetImage from "../../../../assets/spritesheets/spritesheet.png"
+import { MainSceneContext } from "../../../Scenes/MainScene"
+
+type PeopleColors = {
+  head: string
+  body: string
+  mouth: string
+}
 
 export default class PeopleMesh {
   private maxAmount: number
   private material: THREE.ShaderMaterial
+  private context: MainSceneContext
   public mesh: THREE.InstancedMesh
 
-  constructor(maxAmount: number) {
+  private theme: PeopleColors
+
+  constructor(
+    maxAmount: number,
+    context: MainSceneContext,
+    theme: PeopleColors = { body: "#e3c5a4", head: "#e3c5a4", mouth: "#373431" },
+  ) {
+    this.theme = theme
+    this.context = context
     this.maxAmount = maxAmount
     const geom = this.genGeometry()
     this.material = new THREE.ShaderMaterial({
@@ -16,6 +32,9 @@ export default class PeopleMesh {
       vertexShader,
       uniforms: {
         uTexture: { value: new THREE.TextureLoader().load(spritesheetImage) },
+        uBodyColor: { value: new THREE.Color(this.theme.body) },
+        uHeadColor: { value: new THREE.Color(this.theme.head) },
+        uMouthColor: { value: new THREE.Color(this.theme.mouth) },
       },
     })
 
@@ -24,6 +43,17 @@ export default class PeopleMesh {
     instancedPeople.instanceMatrix.needsUpdate = true
 
     this.mesh = instancedPeople
+
+    const folder = this.context.gui.addFolder({ title: "People Mesh" })
+    folder
+      .addInput(this.theme, "body")
+      .on("change", ({ value }) => this.material.uniforms.uBodyColor.value.set(value))
+    folder
+      .addInput(this.theme, "head")
+      .on("change", ({ value }) => this.material.uniforms.uHeadColor.value.set(value))
+    folder
+      .addInput(this.theme, "mouth")
+      .on("change", ({ value }) => this.material.uniforms.uMouthColor.value.set(value))
   }
 
   private genGeometry() {
