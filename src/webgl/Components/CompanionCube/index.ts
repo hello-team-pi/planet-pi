@@ -1,8 +1,9 @@
-import { BoxBufferGeometry, LatheGeometry, Mesh, MeshNormalMaterial, Vector3 } from "three";
+import { Mesh, MeshBasicMaterial, PlaneBufferGeometry, TextureLoader, Vector3 } from "three";
 import { MainSceneContext } from "../../Scenes/MainScene";
 import CursorController from "../People/CursorController";
 import PhysicsObject from "../PhysicsObject";
 import Planet from "../Planet";
+import peopleImage from "../../../assets/images/perso.png"
 
 const temporaryVectors = {
   gravity: new Vector3(),
@@ -19,7 +20,7 @@ export default class CompanionCube extends PhysicsObject {
 
     this.cursor = new CursorController(context)
     this.currentPlanet = originPlanet
-    this.output = new Mesh(new BoxBufferGeometry(), new MeshNormalMaterial())
+    this.output = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial({ map: new TextureLoader().load(peopleImage) }))
     this.output.scale.setScalar(1)
 
     this.reset()

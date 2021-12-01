@@ -7,6 +7,7 @@ import Background from "../../Components/Background"
 import People from "../../Components/People"
 import Planet from "../../Components/Planet"
 import CompanionCube from "../../Components/CompanionCube"
+import clamp from "../../../utils/math/clamp"
 
 export type MainSceneContext = WebGLAppContext & {
   scene: THREE.Scene
@@ -53,16 +54,29 @@ export default class MainScene extends AbstractObjectWithSize {
     this.scene.background = new THREE.Color(0x000000)
 
     const background = new Background(this.genContext())
-    const planets = [new Planet(this.genContext(), new THREE.Vector3(), 2)]
+    const planets = [
+      new Planet(this.genContext(), new THREE.Vector3(), 2),
+      new Planet(this.genContext(), new THREE.Vector3(
+        clamp(Math.random() * 9, 6, 9) * Math.sin(Math.random() * Math.PI * 2),
+        clamp(Math.random() * 9, 6, 9) * Math.cos(Math.random() * Math.PI * 2),
+        0), 2)
+    ]
     const people = new People(this.genContext(), planets[0])
-    const cubeOne = new CompanionCube(this.genContext(), planets[0], 100)
-    const cubeTwo = new CompanionCube(this.genContext(), planets[0], 100)
+    const companions = [
+      new CompanionCube(this.genContext(), planets[0], 90),
+      new CompanionCube(this.genContext(), planets[0], 100),
+      new CompanionCube(this.genContext(), planets[0], 120),
+      new CompanionCube(this.genContext(), planets[0], 50)]
 
-    this.tickingObjects.push(people, cubeOne, cubeTwo)
+    for (const companion of companions) {
+      this.tickingObjects.push(companion)
+      this.scene.add(companion.output)
+    }
+    this.tickingObjects.push(people)
     for (const planet of planets) {
       this.scene.add(planet.output)
     }
-    this.scene.add(background.output, people.output, cubeOne.output, cubeTwo.output)
+    this.scene.add(background.output, people.output)
   }
 
   public tick(...params: Parameters<AbstractObject["tick"]>) {

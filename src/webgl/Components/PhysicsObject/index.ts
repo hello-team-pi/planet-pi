@@ -1,6 +1,5 @@
 import { Vector3 } from "three";
 import { WebGLAppContext } from "../..";
-import clamp from "../../../utils/math/clamp";
 import AbstractObject from "../../Abstract/AbstractObject";
 import Planet from "../Planet";
 
