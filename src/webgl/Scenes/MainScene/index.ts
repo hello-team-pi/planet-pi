@@ -2,13 +2,8 @@ import * as THREE from "three"
 import { WebGLAppContext } from "../.."
 import AbstractObject from "../../Abstract/AbstractObject"
 import AbstractObjectWithSize from "../../Abstract/AbstractObjectWithSize"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import Background from "../../Components/Background"
-import People from "../../Components/People"
-import Planet from "../../Components/Planet"
-import CompanionCube from "../../Components/CompanionCube"
-import clamp from "../../../utils/math/clamp"
-import { Color } from "three"
+import World from "../../Components/World"
 
 export type MainSceneContext = WebGLAppContext & {
   scene: THREE.Scene
@@ -55,31 +50,9 @@ export default class MainScene extends AbstractObjectWithSize {
     this.scene.background = new THREE.Color(0x000000)
 
     const background = new Background(this.genContext())
-    const planets = [
-      new Planet(this.genContext(), new THREE.Vector3(), 2, new Color("#00ff00")),
-      new Planet(this.genContext(), new THREE.Vector3(
-        clamp(Math.random() * 9, 7, 9) * Math.sin(Math.random() * Math.PI * 2),
-        clamp(Math.random() * 9, 7, 9) * Math.cos(Math.random() * Math.PI * 2),
-        0
-      ), clamp(Math.random() * 3, 1, 3), new Color("#f40000"))
-    ]
-    const people = new People(this.genContext(), planets[0])
-    const companions = [
-      new CompanionCube(this.genContext(), planets[0], planets[1], 70),
-      new CompanionCube(this.genContext(), planets[0], planets[1], 100),
-      new CompanionCube(this.genContext(), planets[0], planets[1], 50),
-      new CompanionCube(this.genContext(), planets[0], planets[1], 130),
-    ]
-
-    for (const companion of companions) {
-      this.tickingObjects.push(companion)
-      this.scene.add(companion.output)
-    }
-    this.tickingObjects.push(people)
-    for (const planet of planets) {
-      this.scene.add(planet.output)
-    }
-    this.scene.add(background.output, people.output)
+    const world = new World(this.genContext())
+    this.tickingObjects.push(world)
+    this.scene.add(background.output, world.output)
   }
 
   public tick(...params: Parameters<AbstractObject["tick"]>) {
