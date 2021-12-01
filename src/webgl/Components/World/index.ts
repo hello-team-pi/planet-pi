@@ -21,17 +21,22 @@ export default class World extends AbstractObject<MainSceneContext> {
   private setWorld() {
     this.output = new THREE.Group()
     this.planets = [
-      new Planet(this.context, new THREE.Vector3(), 2, new THREE.Color("#00ff00")),
-      new Planet(
-        this.context,
-        new THREE.Vector3(
+      new Planet(this.context, {
+        position: [0, 0, 0],
+        radius: 2,
+        tint: "#00ff00",
+        lifeSpan: Infinity,
+      }),
+      new Planet(this.context, {
+        position: [
           clamp(Math.random() * 9, 7, 9) * Math.sin(Math.random() * Math.PI * 2),
           clamp(Math.random() * 9, 7, 9) * Math.cos(Math.random() * Math.PI * 2),
           0,
-        ),
-        clamp(Math.random() * 3, 1, 3),
-        new THREE.Color("#f40000"),
-      ),
+        ],
+        radius: clamp(Math.random() * 3, 1, 3),
+        tint: "#f40000",
+        lifeSpan: 10,
+      }),
     ]
     this.tickingObjects.push(...this.planets)
     for (const planet of this.planets) {

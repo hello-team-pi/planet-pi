@@ -8,51 +8,73 @@ import PeopleController from "../People/PeopleController"
 import Easing from "easing-functions"
 import cremap from "../../../utils/math/cremap"
 
+type PlanetParams = {
+  position: THREE.Vector3Tuple
+  lifeSpan: number
+  radius: number
+  tint: THREE.ColorRepresentation
+}
+
 export default class Planet extends AbstractObject<MainSceneContext> {
   private material: THREE.ShaderMaterial
   private peoplesControllers: Set<PeopleController>
+  private lifespan: number
+  private lifetime: number = 0
+  private isDying = false
 
-  public radius: number
+  private startRadius: number
+  private _radius: number
+  public set radius(radius: number) {
+    this.output.scale.setScalar(radius)
+    this._radius = radius
+  }
+  public get radius() {
+    return this._radius
+  }
+
   public get position(): THREE.Vector3 {
     return this.output.position
   }
 
-  constructor(
-    context: MainSceneContext,
-    position: THREE.Vector3,
-    radius: number,
-    tint = new THREE.Color("#fff"),
-  ) {
+  constructor(context: MainSceneContext, params: PlanetParams) {
     super(context)
     this.peoplesControllers = new Set()
-    this.radius = radius
-    this.initMesh(position, tint)
+    this.initMesh(params)
+    this.lifespan = params.lifeSpan
   }
 
-  private initMesh(position: THREE.Vector3, tint: THREE.Color) {
-    const geometry = new THREE.SphereBufferGeometry(this.radius, 32, 32)
+  private initMesh({ position, tint, radius }: PlanetParams) {
+    const geometry = new THREE.SphereBufferGeometry(1, 32, 32)
     this.material = new THREE.ShaderMaterial({
       fragmentShader,
       vertexShader,
       uniforms: {
         uTexture: { value: new THREE.TextureLoader().load(planetTexture) },
-        uTint: { value: tint },
+        uTint: { value: new THREE.Color(tint) },
       },
       transparent: true,
     })
 
     this.output = new THREE.Mesh(geometry, this.material)
-    this.output.position.copy(position)
+    this.radius = radius
+    this.startRadius = radius
+    this.output.position.fromArray(position)
   }
 
   public addPeopleController(controller: PeopleController) {
+    this.isDying = true
     this.peoplesControllers.add(controller)
   }
   public removePeopleController(controller: PeopleController) {
     this.peoplesControllers.delete(controller)
   }
 
-  public tick() {
+  public tick(time: number, deltaTime: number) {
+    if (this.isDying) {
+      this.lifetime = Math.min(this.lifetime + deltaTime / this.lifespan, 1)
+      this.radius = (1 - this.lifetime) * this.startRadius
+    }
+
     for (const controller of this.peoplesControllers) {
       controller.updatePeople((object, data) => {
         let value = 0
