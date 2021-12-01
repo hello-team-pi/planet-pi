@@ -5,6 +5,7 @@ import Planet from "../Planet"
 import { clamp } from "three/src/math/MathUtils"
 import CompanionCube from "../CompanionCube"
 import PeopleMesh from "../People/PeopleMesh"
+import PeopleController from "../People/PeopleController"
 
 export default class World extends AbstractObject<MainSceneContext> {
   private tickingObjects: AbstractObject[] = []
@@ -32,11 +33,23 @@ export default class World extends AbstractObject<MainSceneContext> {
         new THREE.Color("#f40000"),
       ),
     ]
+    this.tickingObjects.push(...this.planets)
     for (const planet of this.planets) {
       this.output.add(planet.output)
     }
 
     this.peopleMesh = new PeopleMesh(1000, this.context)
+
+    const startAmount = 20
+    this.peopleMesh.mesh.count = startAmount
+
+    for (let index = 0; index < startAmount; index++) {
+      this.planets[0].addPeopleController(
+        new PeopleController(index, this.peopleMesh.mesh, {
+          planetRotation: Math.PI * 2 * Math.random(),
+        }),
+      )
+    }
     this.output.add(this.peopleMesh.mesh)
 
     const companions = [
@@ -51,11 +64,10 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
   }
 
-  private initPeopleControllers() {}
-
   public tick(...params: Parameters<AbstractObject["tick"]>) {
     for (const obj of this.tickingObjects) {
       obj.tick(...params)
     }
+    this.peopleMesh.mesh.instanceMatrix.needsUpdate = true
   }
 }
