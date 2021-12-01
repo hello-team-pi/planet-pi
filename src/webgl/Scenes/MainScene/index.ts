@@ -8,6 +8,7 @@ import People from "../../Components/People"
 import Planet from "../../Components/Planet"
 import CompanionCube from "../../Components/CompanionCube"
 import clamp from "../../../utils/math/clamp"
+import { Color } from "three"
 
 export type MainSceneContext = WebGLAppContext & {
   scene: THREE.Scene
@@ -44,9 +45,9 @@ export default class MainScene extends AbstractObjectWithSize {
       0.01,
       1000,
     )
-    this.camera.position.z = 20
+    this.camera.position.z = 50
     this.onResize(window.innerWidth, window.innerHeight)
-    new OrbitControls(this.camera, this.context.renderer.domElement)
+    // new OrbitControls(this.camera, this.context.renderer.domElement)
   }
 
   private setObjects() {
@@ -55,18 +56,20 @@ export default class MainScene extends AbstractObjectWithSize {
 
     const background = new Background(this.genContext())
     const planets = [
-      new Planet(this.genContext(), new THREE.Vector3(), 2),
+      new Planet(this.genContext(), new THREE.Vector3(), 2, new Color("#00ff00")),
       new Planet(this.genContext(), new THREE.Vector3(
-        clamp(Math.random() * 9, 6, 9) * Math.sin(Math.random() * Math.PI * 2),
-        clamp(Math.random() * 9, 6, 9) * Math.cos(Math.random() * Math.PI * 2),
-        0), 2)
+        clamp(Math.random() * 9, 7, 9) * Math.sin(Math.random() * Math.PI * 2),
+        clamp(Math.random() * 9, 7, 9) * Math.cos(Math.random() * Math.PI * 2),
+        0
+      ), clamp(Math.random() * 3, 1, 3), new Color("#f40000"))
     ]
     const people = new People(this.genContext(), planets[0])
     const companions = [
-      new CompanionCube(this.genContext(), planets[0], 90),
-      new CompanionCube(this.genContext(), planets[0], 100),
-      new CompanionCube(this.genContext(), planets[0], 120),
-      new CompanionCube(this.genContext(), planets[0], 50)]
+      new CompanionCube(this.genContext(), planets[0], planets[1], 70),
+      new CompanionCube(this.genContext(), planets[0], planets[1], 100),
+      new CompanionCube(this.genContext(), planets[0], planets[1], 50),
+      new CompanionCube(this.genContext(), planets[0], planets[1], 130),
+    ]
 
     for (const companion of companions) {
       this.tickingObjects.push(companion)

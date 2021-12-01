@@ -1,5 +1,6 @@
 import { Vector3 } from "three";
 import { WebGLAppContext } from "../..";
+import tuple from "../../../utils/types/tuple";
 import AbstractObject from "../../Abstract/AbstractObject";
 import Planet from "../Planet";
 
@@ -37,9 +38,11 @@ export default abstract class PhysicsObject extends AbstractObject {
     const strength = (G * this.mass * targetMass) / (distance * distance);
     temporaryVectors.attraction.multiplyScalar(strength);
 
-    if (distance <= origin.radius) temporaryVectors.attraction.negate()
+    if (distance <= origin.radius + 0.3) {
+      return tuple(temporaryVectors.attraction, true)
+    }
 
-    return temporaryVectors.attraction;
+    return tuple(temporaryVectors.attraction, false)
   }
 
   addForce(force: Vector3) {

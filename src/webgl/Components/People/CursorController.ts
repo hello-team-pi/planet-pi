@@ -6,13 +6,14 @@ import Planet from "../Planet"
 
 export default class CursorController extends AbstractObjectWithSize<MainSceneContext> {
   public cursorPos: THREE.Vector3 = new THREE.Vector3()
-  private isDragging = false
+  public isDragging = false
   private currentPlanet: Planet | null = null
 
   constructor(context: MainSceneContext) {
     super(context)
 
     this.context.renderer.domElement.addEventListener("mousemove", this.handleDrag)
+
   }
 
   private handleDrag = (e: MouseEvent) => {
@@ -35,6 +36,7 @@ export default class CursorController extends AbstractObjectWithSize<MainSceneCo
 
   public release() {
     this.isDragging = false
+
   }
 
   public destroy() {
