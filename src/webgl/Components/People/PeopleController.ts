@@ -6,20 +6,10 @@ type Planet = { radius: number; position: THREE.Vector3 }
 
 type PeopleState = "alive" | "dead" | "projected" | "onPlanet"
 
-type PeopleData = {
-  planetRotation: number
-}
-
-const DEFAULT_DATA: PeopleData = {
-  planetRotation: 0,
-}
-
 export default class PeopleController {
   private object: THREE.Object3D
   private mesh: THREE.InstancedMesh
   private index: number
-
-  public data: PeopleData
 
   // public planetPosition: {
   //   rotation: number
@@ -43,21 +33,16 @@ export default class PeopleController {
   //   }
   // }
 
-  constructor(
-    index: number,
-    mesh: THREE.InstancedMesh,
-    defaultData: PeopleData = { ...DEFAULT_DATA },
-  ) {
+  constructor(index: number, mesh: THREE.InstancedMesh) {
     this.index = index
     this.mesh = mesh
     this.object = new THREE.Object3D()
-    this.data = defaultData
     // this.planetPosition = { ...startPlanetPos }
     // this.nextPlanetPosition = { ...this.planetPosition }
   }
 
-  public updatePeople(transform: (object: THREE.Object3D, data: PeopleController["data"]) => void) {
-    transform(this.object, this.data)
+  public updatePeople(transform: (object: THREE.Object3D) => void) {
+    transform(this.object)
     this.object.updateMatrix()
     this.mesh.setMatrixAt(this.index, this.object.matrix)
   }

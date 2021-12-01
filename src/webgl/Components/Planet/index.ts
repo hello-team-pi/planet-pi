@@ -8,12 +8,14 @@ import PeopleController from "../People/PeopleController"
 import Easing from "easing-functions"
 import cremap from "../../../utils/math/cremap"
 
+type PeopleData = { rotation: number }
+
 type PlanetParams = {
   position: THREE.Vector3Tuple
   lifeSpan: number
   radius: number
   tint: THREE.ColorRepresentation
-  onPeopleDie: (p: Iterable<PeopleController>) => void
+  onPeopleDie: (controller: PeopleController, data: PeopleData) => void
   onPlanetDie: () => void
 }
 
@@ -25,6 +27,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private lifespan: number
   private lifetime: number = 0
   private isDying = false
+  private peopleData: Map<PeopleController, { rotation: number }> = new Map()
 
   private startRadius: number
   private _radius: number
@@ -81,12 +84,23 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.output.position.fromArray(position)
   }
 
-  public addPeopleController(controller: PeopleController) {
+  private kill(peopleController: PeopleController) {
+    const data = this.peopleData.get(peopleController)!
+    this.removePeopleController(peopleController)
+    this.peopleDiedCb(peopleController, data)
+  }
+  private killAll() {
+    for (const controller of this.peoplesControllers) this.kill(controller)
+  }
+
+  public addPeopleController(controller: PeopleController, initRotation: number) {
     this.isDying = true
     this.peoplesControllers.add(controller)
+    this.peopleData.set(controller, { rotation: initRotation })
   }
-  public removePeopleController(controller: PeopleController) {
+  private removePeopleController(controller: PeopleController) {
     this.peoplesControllers.delete(controller)
+    this.peopleData.delete(controller)
   }
 
   public tick(time: number, deltaTime: number) {
@@ -95,47 +109,65 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       this.lifetime = Math.min(this.lifetime + deltaTime / this.lifespan, 1)
       this.radius = (1 - this.lifetime) * this.startRadius
       if (this.lifetime >= 1 && lastLifeTime < 1) {
+        this.killAll()
         this.planetDiedCb()
-        this.peopleDiedCb(this.peoplesControllers.values())
       }
     }
 
+    const minDistSq = 1 * 1
+    const neighbourLimit = 6
     for (const controller of this.peoplesControllers) {
-      controller.updatePeople((object, data) => {
+      const data = this.peopleData.get(controller)!
+
+      let closeNeighbour = 0
+      const position = [
+        Math.cos(data.rotation) * this.radius,
+        Math.sin(data.rotation) * this.radius,
+      ]
+
+      controller.updatePeople((object) => {
         let value = 0
-        for (const { data: foreignData } of this.peoplesControllers) {
+        for (const foreignController of this.peoplesControllers) {
+          const foreignData = this.peopleData.get(foreignController)!
           const loopRotation =
-            data.planetRotation > foreignData.planetRotation
-              ? foreignData.planetRotation + Math.PI * 2
-              : foreignData.planetRotation - Math.PI * 2
-          const loopDiff = data.planetRotation - loopRotation
-          const straightDiff = data.planetRotation - foreignData.planetRotation
+            data.rotation > foreignData.rotation
+              ? foreignData.rotation + Math.PI * 2
+              : foreignData.rotation - Math.PI * 2
+          const loopDiff = data.rotation - loopRotation
+          const straightDiff = data.rotation - foreignData.rotation
           const finalDiff = Math.abs(loopDiff) > Math.abs(straightDiff) ? straightDiff : loopDiff
           const factor = Easing.Exponential.Out(cremap(Math.abs(finalDiff), [0, 0.2], [1, 0]))
           value += Math.sign(finalDiff) * factor
+
+          const foreignPos = [
+            Math.cos(foreignData.rotation) * this.radius,
+            Math.sin(foreignData.rotation) * this.radius,
+          ]
+          const distSq =
+            Math.abs(position[0] - foreignPos[0]) + Math.abs(position[1] - foreignPos[1])
+          if (distSq < minDistSq) closeNeighbour++
         }
 
         const clampValue = Math.sign(value) * (Math.abs(value) > 0.2 ? 2 : 0)
-        let newRotation = data.planetRotation + clampValue * 0.005
+        let newRotation = data.rotation + clampValue * 0.005
         if (newRotation > Math.PI * 2) newRotation -= Math.PI * 2
         if (newRotation < 0) newRotation += Math.PI * 2
-        data.planetRotation = newRotation
+        data.rotation = newRotation
 
         const radius = this.radius + 0.4
 
         object.position.set(
-          this.position.x + Math.cos(data.planetRotation) * radius,
-          this.position.y + Math.sin(data.planetRotation) * radius,
+          this.position.x + Math.cos(data.rotation) * radius,
+          this.position.y + Math.sin(data.rotation) * radius,
           this.position.z,
         )
 
         const q = new THREE.Quaternion()
-        object.quaternion.setFromAxisAngle(
-          new THREE.Vector3(0, 0, 1),
-          data.planetRotation - Math.PI / 2,
-        )
+        object.quaternion.setFromAxisAngle(new THREE.Vector3(0, 0, 1), data.rotation - Math.PI / 2)
         object.quaternion.multiply(q)
         object.updateMatrix()
+
+        if (closeNeighbour > neighbourLimit) this.kill(controller)
       })
     }
   }

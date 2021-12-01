@@ -6,11 +6,16 @@ import { clamp } from "three/src/math/MathUtils"
 import CompanionCube from "../CompanionCube"
 import PeopleMesh from "../People/PeopleMesh"
 import PeopleController from "../People/PeopleController"
+import DeadController from "../People/DeadController"
+import remap from "../../../utils/math/remap"
 
 export default class World extends AbstractObject<MainSceneContext> {
   private tickingObjects: AbstractObject[] = []
   private peopleMesh: PeopleMesh
   private planets: Planet[]
+  private dead: DeadController[] = []
+  private controllerStock: PeopleController[] = []
+  private nextIndex = 0
 
   constructor(context: MainSceneContext) {
     super(context)
@@ -25,8 +30,9 @@ export default class World extends AbstractObject<MainSceneContext> {
         position: [0, 0, 0],
         radius: 2,
         tint: "#00ff00",
-        lifeSpan: 10,
+        lifeSpan: 5,
         onPlanetDie: () => console.log("slt"),
+        onPeopleDie: this.handleDeadFromPlanet,
       }),
       new Planet(this.context, {
         position: [
@@ -39,7 +45,6 @@ export default class World extends AbstractObject<MainSceneContext> {
         lifeSpan: 10,
       }),
     ]
-    this.tickingObjects.push(...this.planets)
     for (const planet of this.planets) {
       this.output.add(planet.output)
     }
@@ -50,11 +55,7 @@ export default class World extends AbstractObject<MainSceneContext> {
     this.peopleMesh.mesh.count = startAmount
 
     for (let index = 0; index < startAmount; index++) {
-      this.planets[0].addPeopleController(
-        new PeopleController(index, this.peopleMesh.mesh, {
-          planetRotation: Math.PI * 2 * Math.random(),
-        }),
-      )
+      this.planets[0].addPeopleController(this.queryController(), Math.PI * 2 * Math.random())
     }
     this.output.add(this.peopleMesh.mesh)
 
@@ -70,9 +71,47 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
   }
 
+  private queryController() {
+    if (this.controllerStock.length === 0) {
+      const controller = new PeopleController(this.nextIndex, this.peopleMesh.mesh)
+      this.nextIndex++
+      return controller
+    }
+    return this.controllerStock.pop()!
+  }
+
+  private handleDeadFromPlanet = (
+    controller: PeopleController,
+    { rotation }: { rotation: number },
+  ) => {
+    const speed = remap(Math.random(), [0, 1], [0.01, 0.02])
+    const finalRotation = remap(Math.random(), [0, 1], [-0.01, 0.01]) + rotation
+    this.dead.push(
+      new DeadController(controller, {
+        speed: [Math.cos(finalRotation) * speed, Math.sin(finalRotation) * speed, 0],
+        context: this.context,
+        removeCb: this.handleDeadRemoval,
+      }),
+    )
+  }
+
+  private handleDeadRemoval = (controller: DeadController) => {
+    const peopleController = controller.peopleController
+    peopleController.updatePeople((o) => o.position.set(-1000, -1000, -1000))
+    const index = this.dead.indexOf(controller)
+    if (index > -1) this.dead.splice(index, 1)
+    return this.controllerStock.push(peopleController)
+  }
+
   public tick(...params: Parameters<AbstractObject["tick"]>) {
     for (const obj of this.tickingObjects) {
       obj.tick(...params)
+    }
+    for (const planet of this.planets) {
+      planet.tick(...params)
+    }
+    for (const dead of this.dead) {
+      dead.tick(...params)
     }
     this.peopleMesh.mesh.instanceMatrix.needsUpdate = true
   }
