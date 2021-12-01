@@ -25,7 +25,8 @@ export default class World extends AbstractObject<MainSceneContext> {
         position: [0, 0, 0],
         radius: 2,
         tint: "#00ff00",
-        lifeSpan: Infinity,
+        lifeSpan: 10,
+        onPlanetDie: () => console.log("slt"),
       }),
       new Planet(this.context, {
         position: [

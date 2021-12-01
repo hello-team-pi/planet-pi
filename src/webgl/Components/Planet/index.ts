@@ -13,11 +13,15 @@ type PlanetParams = {
   lifeSpan: number
   radius: number
   tint: THREE.ColorRepresentation
+  onPeopleDie: (p: Iterable<PeopleController>) => void
+  onPlanetDie: () => void
 }
 
 export default class Planet extends AbstractObject<MainSceneContext> {
   private material: THREE.ShaderMaterial
   private peoplesControllers: Set<PeopleController>
+  private peopleDiedCb: PlanetParams["onPeopleDie"]
+  private planetDiedCb: PlanetParams["onPlanetDie"]
   private lifespan: number
   private lifetime: number = 0
   private isDying = false
@@ -36,14 +40,30 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     return this.output.position
   }
 
-  constructor(context: MainSceneContext, params: PlanetParams) {
+  constructor(
+    context: MainSceneContext,
+    params: Omit<PlanetParams, "onPlanetDie" | "onPeopleDie"> & {
+      onPeopleDie?: PlanetParams["onPeopleDie"]
+      onPlanetDie?: PlanetParams["onPlanetDie"]
+    },
+  ) {
     super(context)
     this.peoplesControllers = new Set()
     this.initMesh(params)
+    this.peopleDiedCb = params.onPeopleDie || (() => {})
+    this.planetDiedCb = params.onPlanetDie || (() => {})
     this.lifespan = params.lifeSpan
   }
 
-  private initMesh({ position, tint, radius }: PlanetParams) {
+  private initMesh({
+    position,
+    tint,
+    radius,
+  }: {
+    position: PlanetParams["position"]
+    tint: PlanetParams["tint"]
+    radius: PlanetParams["radius"]
+  }) {
     const geometry = new THREE.SphereBufferGeometry(1, 32, 32)
     this.material = new THREE.ShaderMaterial({
       fragmentShader,
@@ -71,8 +91,13 @@ export default class Planet extends AbstractObject<MainSceneContext> {
 
   public tick(time: number, deltaTime: number) {
     if (this.isDying) {
+      const lastLifeTime = this.lifetime
       this.lifetime = Math.min(this.lifetime + deltaTime / this.lifespan, 1)
       this.radius = (1 - this.lifetime) * this.startRadius
+      if (this.lifetime >= 1 && lastLifeTime < 1) {
+        this.planetDiedCb()
+        this.peopleDiedCb(this.peoplesControllers.values())
+      }
     }
 
     for (const controller of this.peoplesControllers) {
