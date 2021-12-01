@@ -11,19 +11,28 @@ import SpritesheetParser from "../SpritesheetParser"
 import Planet from "../Planet"
 import PeopleController from "./PeopleController"
 import CursorController from "./CursorController"
+import Animator from "../Animator"
+import { setInstanceFloat } from "../../../utils/webgl/instanceUtils"
 
 export default class People extends AbstractObject<MainSceneContext> {
   private amount: number
   private maxAmount = 20_000
   private material: THREE.RawShaderMaterial
   private planetMap: Map<Planet, PeopleController[]> = new Map()
+  private spritesheet: SpritesheetParser
   private cursorPeoples: PeopleController[] = []
   private cursor: CursorController
   private mesh: THREE.InstancedMesh
+  private animators: Animator[] = []
 
   constructor(context: MainSceneContext, startPlanet: Planet) {
     super(context)
+    this.spritesheet = new SpritesheetParser(json)
     this.initMesh(1, startPlanet)
+
+    for (const animator of this.animators) {
+      animator.setAnimation("walk", () => animator.setAnimation("alive"))
+    }
   }
 
   private initMesh(startAmount: number, startPlanet: Planet) {
@@ -46,6 +55,7 @@ export default class People extends AbstractObject<MainSceneContext> {
         { rotation: Math.random() * Math.PI * 2, tilt: Math.random() - 0.5 },
         index,
       )
+      this.animators.push(new Animator(20))
 
       controllers.push(controller)
     }
@@ -91,13 +101,11 @@ export default class People extends AbstractObject<MainSceneContext> {
     geometry.setAttribute("aOffset", new THREE.InstancedBufferAttribute(offsets, 3))
 
     // UV offsets
-    const parser = new SpritesheetParser(json)
     const uvOffsets = new Float32Array(this.amount * 4)
 
     for (let index = 0; index < this.amount; index++) {
       // const uvIndex = Math.round(index) % this.parser.offsets.length
-      const spriteIndex = 0
-      const { x, y, z, w } = parser.offsets[spriteIndex].offset
+      const { x, y, z, w } = this.spritesheet.getByIndex(0).offset
       // console.log(x, y, z, w);
 
       uvOffsets[index * 4 + 0] = x
@@ -118,6 +126,20 @@ export default class People extends AbstractObject<MainSceneContext> {
       for (const people of peoples) {
         people.setPositionOnPlanet(planet, this.mesh)
       }
+    }
+    for (let index = 0; index < this.animators.length; index++) {
+      const animator = this.animators[index]
+      animator.tick()
+      const frame = animator.getFrame()
+      const offset = this.spritesheet.getByIndex(frame).offset
+      this.mesh.geometry.attributes["aUvOffset"].setXYZW(
+        index,
+        offset.x,
+        offset.y,
+        offset.z,
+        offset.w,
+      )
+      this.mesh.geometry.attributes["aUvOffset"].needsUpdate = true
     }
     this.mesh.instanceMatrix.needsUpdate = true
   }
