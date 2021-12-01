@@ -6,6 +6,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import Background from "../../Components/Background"
 import People from "../../Components/People"
 import Planet from "../../Components/Planet"
+import CompanionCube from "../../Components/CompanionCube"
 
 export type MainSceneContext = WebGLAppContext & {
   scene: THREE.Scene
@@ -50,14 +51,18 @@ export default class MainScene extends AbstractObjectWithSize {
   private setObjects() {
     this.scene = new THREE.Scene()
     this.scene.background = new THREE.Color(0x000000)
+
     const background = new Background(this.genContext())
     const planets = [new Planet(this.genContext(), new THREE.Vector3(), 2)]
     const people = new People(this.genContext(), planets[0])
-    this.tickingObjects.push(people)
+    const cubeOne = new CompanionCube(this.genContext(), planets[0], 100)
+    const cubeTwo = new CompanionCube(this.genContext(), planets[0], 100)
+
+    this.tickingObjects.push(people, cubeOne, cubeTwo)
     for (const planet of planets) {
       this.scene.add(planet.output)
     }
-    this.scene.add(background.output, people.output)
+    this.scene.add(background.output, people.output, cubeOne.output, cubeTwo.output)
   }
 
   public tick(...params: Parameters<AbstractObject["tick"]>) {
