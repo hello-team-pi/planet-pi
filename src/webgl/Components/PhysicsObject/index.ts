@@ -27,7 +27,21 @@ export default abstract class PhysicsObject extends AbstractObject {
     this.velocity = new Vector3()
   }
 
-  attract(origin: Planet, target: Vector3, targetMass = 2, G = 0.4) {
+  attract(origin: Vector3, target: Vector3, targetMass = 2, G = 0.4) {
+    temporaryVectors.attraction.setScalar(1)
+
+    temporaryVectors.attraction.subVectors(origin, target)
+    const distance = temporaryVectors.attraction.length()
+
+    temporaryVectors.attraction.normalize()
+
+    const strength = (G * this.mass * targetMass) / (distance * distance);
+    temporaryVectors.attraction.multiplyScalar(strength);
+
+    return temporaryVectors.attraction
+  }
+
+  attractToPlanet(origin: Planet, target: Vector3, targetMass = 2, G = 0.4) {
     temporaryVectors.attraction.setScalar(1)
 
     temporaryVectors.attraction.subVectors(origin.position, target)

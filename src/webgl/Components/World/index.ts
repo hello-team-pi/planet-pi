@@ -5,6 +5,7 @@ import Planet from "../Planet"
 import { clamp } from "three/src/math/MathUtils"
 import CompanionCube from "../CompanionCube"
 import PeopleMesh from "../People/PeopleMesh"
+import GrabObject from "../GrabObject"
 
 export default class World extends AbstractObject<MainSceneContext> {
   private tickingObjects: AbstractObject[] = []
@@ -49,9 +50,15 @@ export default class World extends AbstractObject<MainSceneContext> {
       this.tickingObjects.push(companion)
       this.output.add(companion.output)
     }
+
+    const grabObject = new GrabObject(this.context, this.planets[0], this.planets[1], companions, 70)
+    this.tickingObjects.push(grabObject)
+    this.output.add(grabObject.output)
+
+
   }
 
-  private initPeopleControllers() {}
+  private initPeopleControllers() { }
 
   public tick(...params: Parameters<AbstractObject["tick"]>) {
     for (const obj of this.tickingObjects) {
