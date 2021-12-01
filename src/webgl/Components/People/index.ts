@@ -12,7 +12,6 @@ import Planet from "../Planet"
 import PeopleController from "./PeopleController"
 import CursorController from "./CursorController"
 import Animator from "../Animator"
-import { setInstanceFloat } from "../../../utils/webgl/instanceUtils"
 
 export default class People extends AbstractObject<MainSceneContext> {
   private amount: number
@@ -31,7 +30,7 @@ export default class People extends AbstractObject<MainSceneContext> {
     this.initMesh(1, startPlanet)
 
     for (const animator of this.animators) {
-      animator.setAnimation("walk", () => animator.setAnimation("alive"))
+      animator.setAnimation("walk")
     }
   }
 
@@ -52,10 +51,11 @@ export default class People extends AbstractObject<MainSceneContext> {
     const controllers: PeopleController[] = []
     for (let index = 0; index < this.amount; index++) {
       const controller = new PeopleController(
-        { rotation: Math.random() * Math.PI * 2, tilt: Math.random() - 0.5 },
+        { rotation: Math.PI / 2, tilt: Math.random() - 0.5 },
+        // { rotation: Math.random() * Math.PI * 2, tilt: Math.random() - 0.5 },
         index,
       )
-      this.animators.push(new Animator(20))
+      this.animators.push(new Animator(5))
 
       controllers.push(controller)
     }
@@ -101,20 +101,8 @@ export default class People extends AbstractObject<MainSceneContext> {
     geometry.setAttribute("aOffset", new THREE.InstancedBufferAttribute(offsets, 3))
 
     // UV offsets
-    const uvOffsets = new Float32Array(this.amount * 4)
-
-    for (let index = 0; index < this.amount; index++) {
-      // const uvIndex = Math.round(index) % this.parser.offsets.length
-      const { x, y, z, w } = this.spritesheet.getByIndex(0).offset
-      // console.log(x, y, z, w);
-
-      uvOffsets[index * 4 + 0] = x
-      uvOffsets[index * 4 + 1] = y
-      uvOffsets[index * 4 + 2] = z // width
-      uvOffsets[index * 4 + 3] = w // heigth
-    }
+    const uvOffsets = new Float32Array(new Array(this.amount * 4).fill(0))
     geometry.setAttribute("aUvOffset", new THREE.InstancedBufferAttribute(uvOffsets, 4))
-
     return geometry
   }
 
@@ -131,7 +119,8 @@ export default class People extends AbstractObject<MainSceneContext> {
       const animator = this.animators[index]
       animator.tick()
       const frame = animator.getFrame()
-      const offset = this.spritesheet.getByIndex(frame).offset
+      const offset = this.spritesheet.getByName(frame)
+
       this.mesh.geometry.attributes["aUvOffset"].setXYZW(
         index,
         offset.x,

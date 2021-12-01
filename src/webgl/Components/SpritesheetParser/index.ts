@@ -18,21 +18,24 @@ type Spritesheet = {
   }
 }
 
+const BUGGY_SPRITESHEET_ASSOC = [
+  0, 1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 4, 9, 14, 19, 20,
+]
+
 export default class SpritesheetParser {
-  private sprites: { name: string; offset: Vector4 }[]
+  private sprites: Record<string, Vector4>
   public size: Vector2
 
   constructor(sheet: Spritesheet) {
     this.size = new Vector2(sheet.meta.size.w, sheet.meta.size.h)
     const frames = sheet.frames
     const entries = Object.entries(frames)
-    this.sprites = entries.map((entry) => ({
-      name: entry[0],
-      offset: this.getVectorFrom(entry[1].frame),
-    }))
+    this.sprites = Object.fromEntries(
+      entries.map((entry) => [entry[0], this.getVectorFrom(entry[1].frame)]),
+    )
   }
-  public getByIndex(index: number) {
-    return this.sprites[index]
+  public getByName(name: string) {
+    return this.sprites[name]
   }
 
   private getVectorFrom(rect: Rect) {
