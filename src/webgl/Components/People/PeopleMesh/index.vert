@@ -1,4 +1,3 @@
-attribute vec3 aOffset;
 attribute vec4 aUvOffset;
 varying vec2 vUv;
 varying vec4 vUvOffset;

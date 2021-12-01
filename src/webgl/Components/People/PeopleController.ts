@@ -49,7 +49,7 @@ export default class PeopleController {
 
   setPositionOnPlanet(planet: Planet, mesh: THREE.InstancedMesh) {
     this.planetPosition.rotation = this.nextPlanetPosition.rotation
-    const radius = planet.radius + 0.3
+    const radius = planet.radius + 0.4
 
     this.object.position.set(
       planet.position.x + Math.cos(this.planetPosition.rotation) * radius,
