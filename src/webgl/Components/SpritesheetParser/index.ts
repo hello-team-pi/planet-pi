@@ -7,12 +7,8 @@ type Rect = {
   h: number
 }
 
-type Frame = {
-  frame: Rect
-}
-
 type Spritesheet = {
-  frames: { [name: string]: Frame }
+  frames: { [name: string]: { frame: Rect } }
   meta: {
     image: string
     size: {
@@ -23,21 +19,24 @@ type Spritesheet = {
 }
 
 export default class SpritesheetParser {
-  offsets: { name: string; offset: Vector4 }[]
-  size: Vector2
+  private sprites: { name: string; offset: Vector4 }[]
+  public size: Vector2
 
   constructor(sheet: Spritesheet) {
     this.size = new Vector2(sheet.meta.size.w, sheet.meta.size.h)
     const frames = sheet.frames
     const entries = Object.entries(frames)
-    this.offsets = entries.map((entry) => ({
+    this.sprites = entries.map((entry) => ({
       name: entry[0],
-      offset: this.getVectorFrom(entry[1]),
+      offset: this.getVectorFrom(entry[1].frame),
     }))
   }
+  public getByIndex(index: number) {
+    return this.sprites[index]
+  }
 
-  getVectorFrom(frame: Frame) {
-    const { x, y, w, h } = frame.frame
+  private getVectorFrom(rect: Rect) {
+    const { x, y, w, h } = rect
     return new Vector4(x / this.size.x, y / this.size.y, w / this.size.x, h / this.size.y)
   }
 }
