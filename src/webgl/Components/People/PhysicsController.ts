@@ -51,7 +51,7 @@ export default class PhysicsController extends PhysicsObject {
   }
 
   private getClosestPlanetIndex() {
-    const distancesTuples = this.planets.map((planet, i) => tuple(i, this.output.position.distanceTo(planet.output.position)))
+    const distancesTuples = this.planets.filter((planet) => !planet.isDead).map((planet, i) => tuple(i, this.output.position.distanceTo(planet.output.position)))
 
     let closestIndex = distancesTuples[0][0]
     let closestDistance = distancesTuples[0][1]
