@@ -17,6 +17,12 @@ startButton.addEventListener("click", () => {
   mainMenu.style.display = "none"
 })
 
+setTimeout(() => {
+  // "Dev mode"
+  globalState.step = "game"
+  mainMenu.style.display = "none"
+}, 500);
+
 const webgl = new WebGL(canvas, globalState)
 
 const stats = new Stats()
