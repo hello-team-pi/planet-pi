@@ -7,6 +7,7 @@ import * as THREE from "three"
 import PeopleController from "../People/PeopleController"
 import Easing from "easing-functions"
 import cremap from "../../../utils/math/cremap"
+import { FolderApi } from "tweakpane"
 
 type PeopleData = { rotation: number }
 
@@ -17,6 +18,7 @@ type PlanetParams = {
   tint: THREE.ColorRepresentation
   onPeopleDie: (controller: PeopleController, data: PeopleData) => void
   onPlanetDie: () => void
+  onSpawn: (planet: Planet, data: PeopleData) => void
 }
 
 export default class Planet extends AbstractObject<MainSceneContext> {
@@ -24,10 +26,19 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private peoplesControllers: Set<PeopleController>
   private peopleDiedCb: PlanetParams["onPeopleDie"]
   private planetDiedCb: PlanetParams["onPlanetDie"]
+  private spawnCb: PlanetParams["onSpawn"]
   private lifespan: number
   private lifetime: number = 0
   private isDying = false
   private peopleData: Map<PeopleController, { rotation: number }> = new Map()
+
+  private static gui: FolderApi
+  private static params = {
+    minimumDist: 1,
+    neighbourLimit: 10,
+    spawnProba: 0.01,
+    restartSpawn: 3,
+  }
 
   private startRadius: number
   private _radius: number
@@ -45,9 +56,10 @@ export default class Planet extends AbstractObject<MainSceneContext> {
 
   constructor(
     context: MainSceneContext,
-    params: Omit<PlanetParams, "onPlanetDie" | "onPeopleDie"> & {
+    params: Omit<PlanetParams, "onPlanetDie" | "onPeopleDie" | "onSpawn"> & {
       onPeopleDie?: PlanetParams["onPeopleDie"]
       onPlanetDie?: PlanetParams["onPlanetDie"]
+      onSpawn?: PlanetParams["onSpawn"]
     },
   ) {
     super(context)
@@ -55,7 +67,25 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.initMesh(params)
     this.peopleDiedCb = params.onPeopleDie || (() => {})
     this.planetDiedCb = params.onPlanetDie || (() => {})
+    this.spawnCb = params.onSpawn || (() => {})
     this.lifespan = params.lifeSpan
+    Planet.initGui(context, this)
+  }
+
+  private static initGui(context: MainSceneContext, planet: Planet) {
+    if (this.gui) return
+    this.gui = context.gui.addFolder({ title: "Planet" })
+    this.gui.addInput(this.params, "minimumDist", { min: 0.2, max: 2, label: "Minimum Distance" })
+    this.gui.addInput(this.params, "neighbourLimit", { step: 1, label: "Neighbour Limit" })
+    this.gui.addInput(this.params, "spawnProba", { min: 0.001, max: 0.05, label: "Spawn Proba" })
+    this.gui.addButton({ title: "Restart" }).on("click", () => {
+      planet.killAll()
+      planet.lifetime = 0
+      for (let index = 0; index < this.params.restartSpawn; index++) {
+        planet.spawnCb(planet, { rotation: Math.random() * Math.PI * 2 })
+      }
+    })
+    this.gui.addInput(this.params, "restartSpawn", { step: 1, label: "Restart Spawn" })
   }
 
   private initMesh({
@@ -114,8 +144,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       }
     }
 
-    const minDistSq = 1 * 1
-    const neighbourLimit = 6
+    const minDistSq = Planet.params.minimumDist * Planet.params.minimumDist
+
     for (const controller of this.peoplesControllers) {
       const data = this.peopleData.get(controller)!
 
@@ -167,7 +197,9 @@ export default class Planet extends AbstractObject<MainSceneContext> {
         object.quaternion.multiply(q)
         object.updateMatrix()
 
-        if (closeNeighbour > neighbourLimit) this.kill(controller)
+        if (closeNeighbour > Planet.params.neighbourLimit) this.kill(controller)
+        else if (Math.random() < Planet.params.spawnProba)
+          this.spawnCb(this, this.peopleData.get(controller)!)
       })
     }
   }

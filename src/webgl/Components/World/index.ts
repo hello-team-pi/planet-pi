@@ -33,6 +33,7 @@ export default class World extends AbstractObject<MainSceneContext> {
         lifeSpan: 5,
         onPlanetDie: () => console.log("slt"),
         onPeopleDie: this.handleDeadFromPlanet,
+        onSpawn: this.handleSpawn,
       }),
       new Planet(this.context, {
         position: [
@@ -51,7 +52,7 @@ export default class World extends AbstractObject<MainSceneContext> {
 
     this.peopleMesh = new PeopleMesh(1000, this.context)
 
-    const startAmount = 20
+    const startAmount = 10
     this.peopleMesh.mesh.count = startAmount
 
     for (let index = 0; index < startAmount; index++) {
@@ -74,7 +75,9 @@ export default class World extends AbstractObject<MainSceneContext> {
   private queryController() {
     if (this.controllerStock.length === 0) {
       const controller = new PeopleController(this.nextIndex, this.peopleMesh.mesh)
+      this.peopleMesh.mesh.count++
       this.nextIndex++
+      ;(window as any).i = this.nextIndex
       return controller
     }
     return this.controllerStock.pop()!
@@ -103,7 +106,17 @@ export default class World extends AbstractObject<MainSceneContext> {
     return this.controllerStock.push(peopleController)
   }
 
+  private handleSpawn = (planet: Planet, { rotation }: { rotation: number }) => {
+    planet.addPeopleController(
+      this.queryController(),
+      rotation + Math.sign(Math.random() - 0.5) * 0.1,
+    )
+  }
+
   public tick(...params: Parameters<AbstractObject["tick"]>) {
+    // const m = new THREE.Matrix4()
+    // this.peopleMesh.mesh.getMatrixAt(1, m)
+    // console.log(m.toArray())
     for (const obj of this.tickingObjects) {
       obj.tick(...params)
     }
