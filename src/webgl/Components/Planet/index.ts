@@ -36,7 +36,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private static params = {
     minimumDist: 1,
     neighbourLimit: 10,
-    spawnProba: 0.01,
+    spawnProba: 0.005,
     restartSpawn: 3,
   }
 
@@ -77,7 +77,12 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.gui = context.gui.addFolder({ title: "Planet" })
     this.gui.addInput(this.params, "minimumDist", { min: 0.2, max: 2, label: "Minimum Distance" })
     this.gui.addInput(this.params, "neighbourLimit", { step: 1, label: "Neighbour Limit" })
-    this.gui.addInput(this.params, "spawnProba", { min: 0.001, max: 0.05, label: "Spawn Proba" })
+    this.gui.addInput(this.params, "spawnProba", {
+      min: 0.001,
+      max: 0.05,
+      step: 0.001,
+      label: "Spawn Proba",
+    })
     this.gui.addButton({ title: "Restart" }).on("click", () => {
       planet.killAll()
       planet.lifetime = 0

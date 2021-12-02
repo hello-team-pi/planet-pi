@@ -8,6 +8,8 @@ import PeopleMesh from "../People/PeopleMesh"
 import PeopleController from "../People/PeopleController"
 import DeadController from "../People/DeadController"
 import remap from "../../../utils/math/remap"
+import SpritesheetParser from "../SpritesheetParser"
+import json from "../../../assets/spritesheets/spritesheet.json"
 
 export default class World extends AbstractObject<MainSceneContext> {
   private tickingObjects: AbstractObject[] = []
@@ -16,6 +18,7 @@ export default class World extends AbstractObject<MainSceneContext> {
   private dead: DeadController[] = []
   private controllerStock: PeopleController[] = []
   private nextIndex = 0
+  private spritesheet = new SpritesheetParser(json)
 
   constructor(context: MainSceneContext) {
     super(context)
@@ -30,7 +33,7 @@ export default class World extends AbstractObject<MainSceneContext> {
         position: [0, 0, 0],
         radius: 2,
         tint: "#00ff00",
-        lifeSpan: 5,
+        lifeSpan: 15,
         onPlanetDie: () => console.log("slt"),
         onPeopleDie: this.handleDeadFromPlanet,
         onSpawn: this.handleSpawn,
@@ -52,7 +55,7 @@ export default class World extends AbstractObject<MainSceneContext> {
 
     this.peopleMesh = new PeopleMesh(1000, this.context)
 
-    const startAmount = 10
+    const startAmount = 5
     this.peopleMesh.mesh.count = startAmount
 
     for (let index = 0; index < startAmount; index++) {
@@ -74,7 +77,11 @@ export default class World extends AbstractObject<MainSceneContext> {
 
   private queryController() {
     if (this.controllerStock.length === 0) {
-      const controller = new PeopleController(this.nextIndex, this.peopleMesh.mesh)
+      const controller = new PeopleController(
+        this.nextIndex,
+        this.peopleMesh.mesh,
+        this.spritesheet,
+      )
       this.peopleMesh.mesh.count++
       this.nextIndex++
       ;(window as any).i = this.nextIndex
