@@ -35,7 +35,7 @@ export default class World extends AbstractObject<MainSceneContext> {
       new Planet(this.context, {
         position: [0, 0, 0],
         radius: 2,
-        tint: "#00ff00",
+        type: "blue",
         lifeSpan: 15,
         onPlanetDie: () => console.log("slt"),
         onPeopleDie: this.handleDeadFromPlanet,
@@ -47,8 +47,8 @@ export default class World extends AbstractObject<MainSceneContext> {
           clamp(Math.random() * 9, 7, 9) * Math.cos(Math.random() * Math.PI * 2),
           0,
         ],
+        type: "green",
         radius: clamp(Math.random() * 3, 1, 3),
-        tint: "#f40000",
         lifeSpan: 10,
       }),
     ]
@@ -77,7 +77,13 @@ export default class World extends AbstractObject<MainSceneContext> {
       this.output.add(companion.output)
     }
 
-    const grabObject = new GrabObject(this.context, this.planets[0], this.planets[1], companions, 70)
+    const grabObject = new GrabObject(
+      this.context,
+      this.planets[0],
+      this.planets[1],
+      companions,
+      70,
+    )
     this.tickingObjects.push(grabObject)
     this.output.add(grabObject.output)
   }
@@ -91,7 +97,7 @@ export default class World extends AbstractObject<MainSceneContext> {
       )
       this.peopleMesh.mesh.count++
       this.nextIndex++
-        ; (window as any).i = this.nextIndex
+      ;(window as any).i = this.nextIndex
       return controller
     }
     return this.controllerStock.pop()!
