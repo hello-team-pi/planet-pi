@@ -10,18 +10,25 @@ const globalState = observableState<{ step: GameStep }>({ step: "start" })
 export type GlobalState = typeof globalState
 
 const mainMenu = document.querySelector<HTMLElement>("#mainMenu")!
+const hud = document.querySelector<HTMLElement>("#hud")!
 const startButton = mainMenu.querySelector<HTMLButtonElement>(".button")!
 
-startButton.addEventListener("click", () => {
-  globalState.step = "game"
-  mainMenu.style.display = "none"
-})
+startButton.addEventListener("click", () => (globalState.step = "game"))
+
+globalState.__onChange(
+  "step",
+  (step) => {
+    mainMenu.style.display = step !== "start" ? "none" : "flex"
+    hud.style.display = step === "start" ? "none" : "flex"
+  },
+  true,
+)
 
 setTimeout(() => {
   // "Dev mode"
   globalState.step = "game"
   mainMenu.style.display = "none"
-}, 500);
+}, 500)
 
 const webgl = new WebGL(canvas, globalState)
 
