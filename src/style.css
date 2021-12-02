@@ -1,14 +1,36 @@
+body {
+  --red: #df3b57;
+  margin: 0;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
 }
 
-body {
-  margin: 0;
+#mainMenu {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.logo {
+  width: 75vw;
+  margin-bottom: 10vh;
+}
+
+.button {
+  font-family: "Lexend Giga", sans-serif;
+  text-transform: uppercase;
+  background-color: var(--red);
+  border: none;
+  color: white;
+  padding: 8px 20px 10px 20px;
+  font-size: 1.2rem;
 }
 
 #webgl {

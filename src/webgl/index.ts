@@ -2,6 +2,7 @@ import * as THREE from "three"
 import { Pane } from "tweakpane"
 import * as EssentialsPlugin from "@tweakpane/plugin-essentials"
 import MainScene from "./Scenes/MainScene"
+import { GlobalState } from "../main"
 
 export default class WebGL {
   private renderer: THREE.WebGLRenderer
@@ -9,9 +10,11 @@ export default class WebGL {
 
   private clock: THREE.Clock
   private gui: Pane
+  private globalState: GlobalState
 
-  constructor(htmlElement: HTMLCanvasElement) {
+  constructor(htmlElement: HTMLCanvasElement, state: GlobalState) {
     this.clock = new THREE.Clock(true)
+    this.globalState = state
     this.setupRenderer(htmlElement)
     this.gui = new Pane({ title: "Planet PI" })
     this.gui.registerPlugin(EssentialsPlugin)
@@ -22,6 +25,7 @@ export default class WebGL {
     clock: this.clock,
     renderer: this.renderer,
     gui: this.gui,
+    globalState: this.globalState,
   })
 
   private setupRenderer(htmlElement: HTMLCanvasElement) {

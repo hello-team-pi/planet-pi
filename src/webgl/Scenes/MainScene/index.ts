@@ -1,10 +1,13 @@
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import * as THREE from "three"
 import { WebGLAppContext } from "../.."
 import AbstractObject from "../../Abstract/AbstractObject"
 import AbstractObjectWithSize from "../../Abstract/AbstractObjectWithSize"
-import Background from "../../Components/Background"
+import Planet from "../../Components/Planet"
+import SciFiBackground from "../../Components/SciFiBackground"
 import World from "../../Components/World"
+import observableState from "../../../utils/observableState"
 
 import spritesheet from "../../../assets/spritesheets/spritesheet.png"
 import blueGradient from "../../../assets/images/gradients/blue_gradient.png"
@@ -15,6 +18,8 @@ import planetModel from "../../../assets/models/planet_4.gltf"
 export default class MainScene extends AbstractObjectWithSize {
   public scene: THREE.Scene
   public camera: THREE.PerspectiveCamera
+
+  private orbit: OrbitControls
   private assets: {
     spritesheet: THREE.Texture
     blueGradient: THREE.Texture
@@ -22,6 +27,10 @@ export default class MainScene extends AbstractObjectWithSize {
     purpleGradient: THREE.Texture
     planetGeometry: THREE.BufferGeometry | null
   }
+
+  private state = observableState<{ currentPlanet: null | Planet }>({
+    currentPlanet: null,
+  })
 
   private tickingObjects: AbstractObject[] = []
 
@@ -39,13 +48,14 @@ export default class MainScene extends AbstractObjectWithSize {
       planetGeometry: null,
     }
     gltfLoader.load(planetModel, (gltf: GLTF) => {
-      console.log(gltf.scenes[0].children[0])
       const mesh = gltf.scenes[0].children[0] as THREE.Mesh<
         THREE.BufferGeometry,
         THREE.MeshStandardMaterial
       >
       // mesh.material.normalMap
       this.assets.planetGeometry = mesh.geometry
+    })
+    this.context.globalState.__onChange("step", (step) => {
       const world = new World(this.genContext())
       this.tickingObjects.push(world)
       this.scene.add(world.output)
@@ -58,6 +68,7 @@ export default class MainScene extends AbstractObjectWithSize {
     camera: this.camera,
     scene: this.scene,
     assets: this.assets,
+    sceneState: this.state,
   })
 
   protected onResize(width: number, height: number) {
@@ -74,15 +85,29 @@ export default class MainScene extends AbstractObjectWithSize {
     )
     this.camera.position.z = 50
     this.onResize(window.innerWidth, window.innerHeight)
-    // new OrbitControls(this.camera, this.context.renderer.domElement)
+    this.orbit = new OrbitControls(this.camera, this.context.renderer.domElement)
+    this.orbit.enabled = false
+    this.context.gui.addInput(this.orbit, "enabled", { label: "Orbit Controls" })
+
+    this.state.__onChange(
+      "currentPlanet",
+      (p) => {
+        if (p === null) return
+        this.camera.position.x = p.position.x
+        this.camera.position.y = p.position.y
+        this.orbit.target.copy(p.position)
+      },
+      true,
+    )
   }
 
   private setObjects() {
     this.scene = new THREE.Scene()
     this.scene.background = new THREE.Color(0x000000)
 
-    const background = new Background(this.genContext())
+    const background = new SciFiBackground(this.genContext())
     this.scene.add(background.output)
+    this.tickingObjects.push(background)
   }
 
   public tick(...params: Parameters<AbstractObject["tick"]>) {
