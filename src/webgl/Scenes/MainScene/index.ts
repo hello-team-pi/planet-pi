@@ -87,7 +87,7 @@ export default class MainScene extends AbstractObjectWithSize {
     this.onResize(window.innerWidth, window.innerHeight)
     this.orbit = new OrbitControls(this.camera, this.context.renderer.domElement)
     this.orbit.enabled = false
-    this.context.gui.addInput(this.orbit, "enabled", { label: "Orbit Controls" })
+    this.context.gui.addInput(this.orbit, "enabled", { label: "Gerb-o-tron" })
 
     this.state.__onChange(
       "currentPlanet",

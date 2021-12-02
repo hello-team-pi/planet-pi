@@ -4,6 +4,7 @@ import { Object3D, Vector3 } from "three";
 import PhysicsObject from "../PhysicsObject";
 import Planet from "../Planet";
 import GrabObject from "../GrabObject";
+import tuple from "../../../utils/types/tuple";
 
 type PhysicsState = "ATTRACTING" | "REPULSING"
 
@@ -14,16 +15,18 @@ const temporaryVectors = {
 
 export default class PhysicsController extends PhysicsObject {
   private planets: Planet[]
-  private peopleController: PeopleController
+  public peopleController: PeopleController
   private grabObject: GrabObject
   public releasedCursorPosition = new Vector3()
   private state: PhysicsState = "ATTRACTING"
+  private onLanding: Function
 
-  constructor(peopleController: PeopleController, planets: Planet[], grabObject: GrabObject, mass = 1) {
+  constructor(peopleController: PeopleController, planets: Planet[], grabObject: GrabObject, onLanding: Function, mass = 1) {
     super(mass)
     this.peopleController = peopleController
     this.planets = planets
     this.grabObject = grabObject
+    this.onLanding = onLanding
     this.output = new Object3D()
     this.output.position.copy(peopleController.object.position)
     this.velocity.copy(peopleController.object.position)
@@ -47,6 +50,22 @@ export default class PhysicsController extends PhysicsObject {
     return temporaryVectors.target
   }
 
+  private getClosestPlanetIndex() {
+    const distancesTuples = this.planets.map((planet, i) => tuple(i, this.output.position.distanceTo(planet.output.position)))
+
+    let closestIndex = distancesTuples[0][0]
+    let closestDistance = distancesTuples[0][1]
+
+    for (const tuple of distancesTuples) {
+      if (tuple[1] < closestDistance) {
+        closestIndex = tuple[0]
+        closestDistance = tuple[1]
+      }
+    }
+
+    return closestIndex
+  }
+
   public setReleasedCursorPosition(position: Vector3) {
     this.releasedCursorPosition.copy(position)
   }
@@ -68,8 +87,12 @@ export default class PhysicsController extends PhysicsObject {
 
         case "REPULSING":
           {
-            const [attractToPlanet, stop] = this.attractToPlanet(this.planets[1], this.output.position)
-            if (stop) return
+            const [attractToPlanet, stop] = this.attractToPlanet(this.planets[this.getClosestPlanetIndex()], this.output.position)
+
+            if (stop) {
+              this.onLanding(this.planets[this.getClosestPlanetIndex()], this)
+              return
+            }
 
             this.forces.set("attractToPlater", attractToPlanet)
             const repulsion = this.repulse(this.output.position, this.releasedCursorPosition)

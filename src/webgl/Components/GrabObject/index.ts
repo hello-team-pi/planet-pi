@@ -23,20 +23,21 @@ export default class GrabObject extends PhysicsObject {
   public cursor: CursorController
   private currentPlanet: Planet
   private state: "ROTATING" | "IDLE"
+  private onLanding: Function
 
-  constructor(context: MainSceneContext, originPlanet: Planet, mass = 1) {
+  constructor(context: MainSceneContext, originPlanet: Planet, mass = 1, onLanding: (planet: Planet, physicsController: PhysicsController) => void) {
     super(mass)
 
     this.cursor = new CursorController(context)
     this.currentPlanet = originPlanet
     this.cursor.setCurrentPlanet(this.currentPlanet)
+    this.onLanding = onLanding
     this.output = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial({ map: new TextureLoader().load(peopleImage) }))
     this.output.scale.setScalar(0.3)
     this.state = "ROTATING"
     this.peopleControllerTuples = []
 
     this.rotateAroundPlanetOppositeFromMouse()
-    // this.setEvents()
   }
 
   setState(newState: "ROTATING" | "IDLE") {
@@ -46,18 +47,18 @@ export default class GrabObject extends PhysicsObject {
   rotateAroundPlanetOppositeFromMouse(alpha = 0.75) {
     const angle = -Math.atan2(this.cursor.cursorPos.y - this.currentPlanet.position.y, this.cursor.cursorPos.x - this.currentPlanet.position.x)
 
-    const offsetFromRadius = 0.8
+    const offsetRadius = 1.1
 
-    const x = fromPolarX(this.currentPlanet.radius + offsetFromRadius, angle - Math.PI / 2)
-    const y = fromPolarY(this.currentPlanet.radius + offsetFromRadius, angle - Math.PI / 2)
+    const x = fromPolarX(this.currentPlanet.radius + offsetRadius, angle + Math.PI / 2)
+    const y = fromPolarY(this.currentPlanet.radius + offsetRadius, angle + Math.PI / 2)
 
-    temporaryVectors.lerpedTargetRotation.set(x, y, 0)
+    temporaryVectors.lerpedTargetRotation.set(this.currentPlanet.position.x - x, this.currentPlanet.position.y - y, 0)
     this.output.position.lerp(temporaryVectors.lerpedTargetRotation, alpha)
   }
 
   setPhysicalPeopleControllers = (peopleControllers: PeopleController[], planets: Planet[]) => {
     for (const peopleController of peopleControllers) {
-      this.peopleControllerTuples.push(tuple(peopleController, new PhysicsController(peopleController, planets, this)))
+      this.peopleControllerTuples.push(tuple(peopleController, new PhysicsController(peopleController, planets, this, this.onLanding)))
     }
   }
 

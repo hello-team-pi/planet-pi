@@ -14,6 +14,7 @@ import json from "../../../assets/spritesheets/spritesheet.json"
 import AbstractObjectNoContext from "../../Abstract/AbstractObjectNoContext"
 import planetRepartition from "./planetsRepartition.json"
 import tuple from "../../../utils/types/tuple"
+import PhysicsController from "../People/PhysicsController"
 
 export default class World extends AbstractObject<MainSceneContext> {
   private tickingObjects: AbstractObjectNoContext[] = []
@@ -49,27 +50,7 @@ export default class World extends AbstractObject<MainSceneContext> {
       })
     })
     this.context.sceneState.currentPlanet = this.planets[0]
-    // this.planets = [
-    //   new Planet(this.context, {
-    //     position: [0, 0, 0],
-    //     radius: 2,
-    //     type: "blue",
-    //     lifeSpan: 15,
-    //     onPlanetDie: () => console.log("slt"),
-    //     onPeopleDie: this.handleDeadFromPlanet,
-    //     onSpawn: this.handleSpawn,
-    //   }),
-    //   new Planet(this.context, {
-    //     position: [
-    //       clamp(Math.random() * 9, 7, 9) * Math.sin(Math.random() * Math.PI * 2),
-    //       clamp(Math.random() * 9, 7, 9) * Math.cos(Math.random() * Math.PI * 2),
-    //       0,
-    //     ],
-    //     type: "green",
-    //     radius: clamp(Math.random() * 3, 1, 3),
-    //     lifeSpan: 10,
-    //   }),
-    // ]
+
     for (const planet of this.planets) {
       this.output.add(planet.output)
     }
@@ -80,27 +61,19 @@ export default class World extends AbstractObject<MainSceneContext> {
     this.peopleMesh.mesh.count = startAmount
 
     for (let index = 0; index < startAmount; index++) {
-      this.planets[0].addPeopleController(this.queryController(), Math.PI * 2 * Math.random())
+      this.context.sceneState.currentPlanet.addPeopleController(this.queryController(), Math.PI * 2 * Math.random())
     }
     this.output.add(this.peopleMesh.mesh)
 
-    // const companions = [
-    //   new CompanionCube(this.context, this.planets[0], this.planets[1], 70),
-    //   new CompanionCube(this.context, this.planets[0], this.planets[1], 100),
-    //   new CompanionCube(this.context, this.planets[0], this.planets[1], 50),
-    //   new CompanionCube(this.context, this.planets[0], this.planets[1], 130),
-    // ]
-    // for (const companion of companions) {
-    //   this.tickingObjects.push(companion)
-    //   this.output.add(companion.output)
-    // }
-
     const grabObject = new GrabObject(
       this.context,
-      this.planets[0],
+      this.context.sceneState.currentPlanet,
       70,
+      (planet: Planet, physicsController: PhysicsController) => {
+        planet.addPeopleController(physicsController.peopleController, 0)
+        this.context.sceneState.currentPlanet = planet
+      }
     )
-
     this.grabObjects.push(grabObject)
     this.tickingObjects.push(grabObject)
     this.output.add(grabObject.output)
