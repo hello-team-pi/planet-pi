@@ -7,6 +7,10 @@ import cremap from "../../../utils/math/cremap"
 import { FolderApi } from "tweakpane"
 import FluidMaterial from "../../Material/FluidMaterial"
 import remap from "../../../utils/math/remap"
+import dangerBackUi from "../../../assets/images/ui/hud_quit_planet.png"
+import overpopulationBackUi from "../../../assets/images/ui/hud_overpopulation.png"
+import dangerFrontUi from "../../../assets/images/ui/hud_quit_planet.png"
+import overpopulationFrontUi from "../../../assets/images/ui/ico-attention.png"
 
 type PeopleData = { rotation: number }
 
@@ -30,6 +34,10 @@ const TYPE_TEXTURE: Record<PlanetType, "greenGradient" | "purpleGradient" | "blu
 
 export default class Planet extends AbstractObject<MainSceneContext> {
   private fluidMaterial: FluidMaterial
+  private planetMesh: THREE.Mesh
+  private frontUI: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
+  private backUI: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
+
   private peoplesControllers: Set<PeopleController>
   private peopleDiedCb: PlanetParams["onPeopleDie"]
   private planetDiedCb: PlanetParams["onPlanetDie"]
@@ -37,6 +45,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private lifespan: number
   private lifetime: number = 0
   private isDying = false
+
   public peopleData: Map<PeopleController, { rotation: number }> = new Map()
 
   private static gui: FolderApi
@@ -45,6 +54,16 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     neighbourLimit: 10,
     spawnProba: 0.005,
     restartSpawn: 3,
+  }
+  private static textures: {
+    front: {
+      overpopulation: THREE.Texture
+      danger: THREE.Texture
+    }
+    back: {
+      overpopulation: THREE.Texture
+      danger: THREE.Texture
+    }
   }
 
   // private static materialParams: Partial<FluidParams> = {
@@ -60,7 +79,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private startRadius: number
   private _radius: number
   public set radius(radius: number) {
-    this.output.scale.setScalar(radius)
+    this.planetMesh.scale.setScalar(radius)
     this._radius = radius
   }
   public get radius() {
@@ -80,13 +99,30 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     },
   ) {
     super(context)
+    Planet.initTextures()
     this.peoplesControllers = new Set()
     this.initMesh(params)
-    this.peopleDiedCb = params.onPeopleDie || (() => { })
-    this.planetDiedCb = params.onPlanetDie || (() => { })
-    this.spawnCb = params.onSpawn || (() => { })
+    this.peopleDiedCb = params.onPeopleDie || (() => {})
+    this.planetDiedCb = params.onPlanetDie || (() => {})
+    this.spawnCb = params.onSpawn || (() => {})
     this.lifespan = params.lifeSpan
     Planet.initGui(context, this)
+  }
+
+  private static initTextures() {
+    if (this.textures) return
+    const loader = new THREE.TextureLoader()
+    const transform = (t: THREE.Texture) => (t.minFilter = THREE.NearestFilter)
+    this.textures = {
+      back: {
+        danger: loader.load(dangerBackUi, transform),
+        overpopulation: loader.load(overpopulationBackUi, transform),
+      },
+      front: {
+        danger: loader.load(dangerFrontUi, transform),
+        overpopulation: loader.load(overpopulationFrontUi, transform),
+      },
+    }
   }
 
   private static initGui(context: MainSceneContext, planet: Planet) {
@@ -134,11 +170,36 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       gradient: this.context.assets[TYPE_TEXTURE[type]],
       direction: randomRotation,
     })
-    this.output = new THREE.Mesh(geometry, this.fluidMaterial.material)
-    this.output.rotation.set(randomRotation.x - Math.PI / 2, randomRotation.y, randomRotation.z)
+    this.planetMesh = new THREE.Mesh(geometry, this.fluidMaterial.material)
+    this.planetMesh.rotation.set(randomRotation.x - Math.PI / 2, randomRotation.y, randomRotation.z)
+
+    this.frontUI = new THREE.Mesh(
+      new THREE.PlaneGeometry(8, 8),
+      new THREE.MeshBasicMaterial({
+        transparent: true,
+        map: Planet.textures.back.overpopulation,
+      }),
+    )
+    this.frontUI.position.z = -0.1
+    this.frontUI.position.y = radius * 0.2
+    this.backUI = new THREE.Mesh(
+      new THREE.PlaneGeometry(2, 2),
+      new THREE.MeshBasicMaterial({
+        transparent: true,
+        map: Planet.textures.front.overpopulation,
+        depthTest: false,
+      }),
+    )
+
+    this.output = new THREE.Object3D()
+    this.output.position.fromArray(position)
+    this.output.add(this.planetMesh, this.frontUI, this.backUI)
     this.radius = radius
     this.startRadius = radius
-    this.output.position.fromArray(position)
+  }
+
+  private setUI(type: "none" | "overpopulation" | "danger") {
+    // this.frontUI.
   }
 
   private kill(peopleController: PeopleController) {
