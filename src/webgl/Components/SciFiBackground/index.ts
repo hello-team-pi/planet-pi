@@ -21,8 +21,6 @@ export default class SciFiBackground extends AbstractObjectWithSize<MainSceneCon
 
   private gui: FolderApi
 
-  public mesh: THREE.Mesh
-
   constructor(context: MainSceneContext) {
     super(context)
     this.gui = this.context.gui.addFolder({ title: "Background" })
@@ -73,6 +71,7 @@ export default class SciFiBackground extends AbstractObjectWithSize<MainSceneCon
       [cam.position.x, cam.position.y, 0],
       this.windowSize.state,
     )
+    this.output.position.set(cam.position.x, cam.position.y, cam.position.z - 1)
     this.uniforms.uGridOffset.value.set(
       (cam.position.x / width) * this.windowSize.state.width,
       (cam.position.y / height) * this.windowSize.state.height,
