@@ -9,7 +9,7 @@ type Planet = { radius: number; position: THREE.Vector3 }
 type PeopleState = "alive" | "dead" | "projected" | "onPlanet"
 
 export default class PeopleController {
-  private object: THREE.Object3D
+  public object: THREE.Object3D
   private mesh: THREE.InstancedMesh
   private animator: Animator
   private spritesheet: SpritesheetParser

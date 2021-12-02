@@ -3,7 +3,7 @@ import { MainSceneContext } from "../../Scenes/MainScene";
 import CursorController from "../People/CursorController";
 import PhysicsObject from "../PhysicsObject";
 import Planet from "../Planet";
-import peopleImage from "../../../assets/images/perso.png"
+import peopleImage from "../../../assets/images/placeholder.png"
 import CompanionCube from "../CompanionCube";
 import { fromPolarX, fromPolarY } from "../../../utils/math/fromPolar";
 import People from "../People";
@@ -21,36 +21,27 @@ const temporaryVectors = {
 export default class GrabObject extends PhysicsObject {
   public output: Mesh
   public peopleControllerTuples: [PeopleController, PhysicsController][]
-  private cursor: CursorController
+  public cursor: CursorController
   private currentPlanet: Planet
-  private onReleaseCallbacks: Map<string, Function>
-  private state: "ATTRACTING" | "IDLE" | "PROJECTING"
-  private companions: CompanionCube[] // TODO: replace this
+  private state: "ROTATING" | "IDLE"
 
-  constructor(context: MainSceneContext, originPlanet: Planet, targetPlanet: Planet, companions: CompanionCube[], mass = 1) {
+  constructor(context: MainSceneContext, originPlanet: Planet, mass = 1) {
     super(mass)
 
     this.cursor = new CursorController(context)
     this.currentPlanet = originPlanet
     this.cursor.setCurrentPlanet(this.currentPlanet)
     this.output = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial({ map: new TextureLoader().load(peopleImage) }))
-    this.output.scale.setScalar(1)
-    this.onReleaseCallbacks = new Map()
-    this.state = "IDLE"
-    this.companions = companions
+    this.output.scale.setScalar(0.3)
+    this.state = "ROTATING"
     this.peopleControllerTuples = []
 
     this.rotateAroundPlanetOppositeFromMouse()
-    this.setEvents()
+    // this.setEvents()
   }
 
-  follow(origin: Vector3, target: Vector3) {
-    temporaryVectors.target.copy(target)
-    temporaryVectors.target.sub(origin)
-    const distance = temporaryVectors.target.length()
-    temporaryVectors.target.normalize()
-    temporaryVectors.target.multiplyScalar(distance)
-    return temporaryVectors.target
+  setState(newState: "ROTATING" | "IDLE") {
+    this.state = newState
   }
 
   rotateAroundPlanetOppositeFromMouse(alpha = 0.75) {
@@ -65,24 +56,17 @@ export default class GrabObject extends PhysicsObject {
     this.output.position.lerp(temporaryVectors.lerpedTargetRotation, alpha)
   }
 
-  attractToGrab() {
-    for (const companion of this.companions) {
-      const cancel = companion.output.position.distanceTo(this.output.position) <= 1
-      if (cancel) continue
-
-      // const force = companion.attract(this.output.position, companion.output.position, 0.01)
-      const followForce = this.follow(companion.output.position, this.output.position)
-
-      const collisionOnPlanet = companion.output.position.distanceTo(this.currentPlanet.position) < this.currentPlanet.radius + 0.3
-      if (collisionOnPlanet) continue
-
-      companion.addForce(followForce)
+  setPhysicalPeopleControllers = (peopleControllers: PeopleController[], planets: Planet[]) => {
+    for (const peopleController of peopleControllers) {
+      this.peopleControllerTuples.push(tuple(peopleController, new PhysicsController(peopleController, planets, this)))
     }
   }
 
-  setPeopleControllers(peopleControllers: PeopleController[]) {
-    for (const peopleController of peopleControllers) {
-      this.peopleControllerTuples.push(tuple(peopleController, new PhysicsController(peopleController)))
+  repulsePhysicalPeopleControllers() {
+    for (const peopleController of this.peopleControllerTuples) {
+      const physicsController = peopleController[1]
+      physicsController.setReleasedCursorPosition(this.cursor.cursorPos)
+      physicsController.setState("REPULSING")
     }
   }
 
@@ -90,64 +74,16 @@ export default class GrabObject extends PhysicsObject {
     this.peopleControllerTuples = []
   }
 
-  onMouseDown = () => {
-    this.state = "ATTRACTING"
-    this.cursor.click(this.currentPlanet)
-    this.onReleaseCallbacks.set("project", () => {
-      // Project
-
-    })
-  }
-
-  onMouseUp = () => {
-    this.state = "IDLE"
-    this.cursor.release()
-
-    for (const entry of this.onReleaseCallbacks.entries()) {
-      const [name, callback] = entry
-      callback()
-
-      this.onReleaseCallbacks.delete(name)
-    }
-  }
-
-  setEvents() {
-    window.addEventListener("mousedown", this.onMouseDown)
-    window.addEventListener("mouseup", this.onMouseUp)
-
-    this.toUnbind(() => {
-      window.removeEventListener("mousedown", this.onMouseDown)
-      window.removeEventListener("mouseup", this.onMouseUp)
-    })
-  }
-
   tick() {
     switch (this.state) {
-      case "IDLE":
+      case "ROTATING":
         {
           this.rotateAroundPlanetOppositeFromMouse()
           break;
         }
 
-
-      case "ATTRACTING":
-        {
-          this.attractToGrab()
-          break;
-        }
-
-      case "PROJECTING":
-        {
-          // Do things
-          // const physicsObject = this.peopleControllerTuples[1]);
-
-
-          break
-        }
-
       default:
         break;
     }
-
   }
 }

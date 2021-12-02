@@ -37,7 +37,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private lifespan: number
   private lifetime: number = 0
   private isDying = false
-  private peopleData: Map<PeopleController, { rotation: number }> = new Map()
+  public peopleData: Map<PeopleController, { rotation: number }> = new Map()
 
   private static gui: FolderApi
   private static spawnParams = {
@@ -82,9 +82,9 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     super(context)
     this.peoplesControllers = new Set()
     this.initMesh(params)
-    this.peopleDiedCb = params.onPeopleDie || (() => {})
-    this.planetDiedCb = params.onPlanetDie || (() => {})
-    this.spawnCb = params.onSpawn || (() => {})
+    this.peopleDiedCb = params.onPeopleDie || (() => { })
+    this.planetDiedCb = params.onPlanetDie || (() => { })
+    this.spawnCb = params.onSpawn || (() => { })
     this.lifespan = params.lifeSpan
     Planet.initGui(context, this)
   }
@@ -155,7 +155,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.peoplesControllers.add(controller)
     this.peopleData.set(controller, { rotation: initRotation })
   }
-  private removePeopleController(controller: PeopleController) {
+
+  public removePeopleController(controller: PeopleController) {
     this.peoplesControllers.delete(controller)
     this.peopleData.delete(controller)
   }

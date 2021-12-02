@@ -66,26 +66,28 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
     this.output.add(this.peopleMesh.mesh)
 
-    const companions = [
-      new CompanionCube(this.context, this.planets[0], this.planets[1], 70),
-      new CompanionCube(this.context, this.planets[0], this.planets[1], 100),
-      new CompanionCube(this.context, this.planets[0], this.planets[1], 50),
-      new CompanionCube(this.context, this.planets[0], this.planets[1], 130),
-    ]
-    for (const companion of companions) {
-      this.tickingObjects.push(companion)
-      this.output.add(companion.output)
-    }
+    // const companions = [
+    //   new CompanionCube(this.context, this.planets[0], this.planets[1], 70),
+    //   new CompanionCube(this.context, this.planets[0], this.planets[1], 100),
+    //   new CompanionCube(this.context, this.planets[0], this.planets[1], 50),
+    //   new CompanionCube(this.context, this.planets[0], this.planets[1], 130),
+    // ]
+    // for (const companion of companions) {
+    //   this.tickingObjects.push(companion)
+    //   this.output.add(companion.output)
+    // }
 
     const grabObject = new GrabObject(
       this.context,
       this.planets[0],
-      this.planets[1],
-      companions,
       70,
     )
+
+    this.grabObjects.push(grabObject)
     this.tickingObjects.push(grabObject)
     this.output.add(grabObject.output)
+
+    this.setEvents()
   }
 
   private queryController() {
@@ -97,7 +99,7 @@ export default class World extends AbstractObject<MainSceneContext> {
       )
       this.peopleMesh.mesh.count++
       this.nextIndex++
-      ;(window as any).i = this.nextIndex
+        ; (window as any).i = this.nextIndex
       return controller
     }
     return this.controllerStock.pop()!
@@ -133,6 +135,38 @@ export default class World extends AbstractObject<MainSceneContext> {
     )
   }
 
+  // EVENTS
+  // Au click :
+  // Choper la planete plus proche [not used]
+  // Choper les people controllers a un certain angle grace à peopleData [not used]
+  // Set les people controllers du grabobject [x]
+  // Remove les people controllers de la planete [x]
+  // Activer les grabobject [x]
+  private onMouseDown = () => {
+    const planet = this.planets[0]
+    const controllers = Array.from(planet.peopleData.keys())
+
+    for (const controller of controllers) {
+      planet.removePeopleController(controller)
+    }
+
+    this.grabObjects[0].setPhysicalPeopleControllers(controllers, this.planets)
+  }
+
+  private onMouseUp = () => {
+    this.grabObjects[0].repulsePhysicalPeopleControllers()
+  }
+
+  setEvents() {
+    window.addEventListener("mousedown", this.onMouseDown)
+    window.addEventListener("mouseup", this.onMouseUp)
+
+    this.toUnbind(() => {
+      window.removeEventListener("mousedown", this.onMouseDown)
+      window.removeEventListener("mouseup", this.onMouseUp)
+    })
+  }
+
   public tick(...params: Parameters<AbstractObject["tick"]>) {
     // const m = new THREE.Matrix4()
     // this.peopleMesh.mesh.getMatrixAt(1, m)
@@ -146,12 +180,12 @@ export default class World extends AbstractObject<MainSceneContext> {
     for (const dead of this.dead) {
       dead.tick(...params)
     }
-    for (const grab of this.grabObjects) {
-      for (const peopleController of grab.peopleControllerTuples) {
+    for (const grabObject of this.grabObjects) {
+      for (const peopleController of grabObject.peopleControllerTuples) {
         const physicsObject = peopleController[1]
         physicsObject.tick(...params)
       }
-      grab.tick()
+      grabObject.tick()
     }
     this.peopleMesh.mesh.instanceMatrix.needsUpdate = true
   }
