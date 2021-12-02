@@ -1,14 +1,15 @@
-import { Mesh, MeshBasicMaterial, PlaneBufferGeometry, Quaternion, TextureLoader, Vector3 } from "three";
+import { Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry, Quaternion, TextureLoader, Vector3 } from "three";
 import { MainSceneContext } from "../../Scenes/MainScene";
 import CursorController from "../People/CursorController";
 import PhysicsObject from "../PhysicsObject";
 import Planet from "../Planet";
 import peopleImage from "../../../assets/images/placeholder.png"
-import CompanionCube from "../CompanionCube";
 import { fromPolarX, fromPolarY } from "../../../utils/math/fromPolar";
 import PeopleController from "../People/PeopleController";
 import tuple from "../../../utils/types/tuple";
 import PhysicsController from "../People/PhysicsController";
+
+export type OnLanding = (previousPlanet: Planet, landedPlanet: Planet, physicsController: PhysicsController, grabObject: GrabObject) => void
 
 const temporaryVectors = {
   gravity: new Vector3(),
@@ -18,14 +19,14 @@ const temporaryVectors = {
 }
 
 export default class GrabObject extends PhysicsObject {
-  public output: Mesh
-  public peopleControllerTuples: [PeopleController, PhysicsController][]
+  public output: Object3D
+  public peopleControllerTuples: [PeopleController, PhysicsController][] & any[] //TODO: hlep
   public cursor: CursorController
   private currentPlanet: Planet
-  private state: "ROTATING" | "IDLE"
-  private onLanding: Function
+  private onLanding: OnLanding
+  private hasDisappeared = false
 
-  constructor(context: MainSceneContext, originPlanet: Planet, mass = 1, onLanding: (planet: Planet, physicsController: PhysicsController) => void) {
+  constructor(context: MainSceneContext, originPlanet: Planet, mass = 1, onLanding: OnLanding) {
     super(mass)
 
     this.cursor = new CursorController(context)
@@ -34,17 +35,13 @@ export default class GrabObject extends PhysicsObject {
     this.onLanding = onLanding
     this.output = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial({ map: new TextureLoader().load(peopleImage) }))
     this.output.scale.setScalar(0.3)
-    this.state = "ROTATING"
+    // this.output = new Object3D()
     this.peopleControllerTuples = []
 
-    this.rotateAroundPlanetOppositeFromMouse()
+    this.rotateAroundPlanet()
   }
 
-  setState(newState: "ROTATING" | "IDLE") {
-    this.state = newState
-  }
-
-  rotateAroundPlanetOppositeFromMouse(alpha = 0.75) {
+  private rotateAroundPlanet(alpha = 0.75) {
     const angle = -Math.atan2(this.cursor.cursorPos.y - this.currentPlanet.position.y, this.cursor.cursorPos.x - this.currentPlanet.position.x)
 
     const offsetRadius = 1.1
@@ -56,13 +53,14 @@ export default class GrabObject extends PhysicsObject {
     this.output.position.lerp(temporaryVectors.lerpedTargetRotation, alpha)
   }
 
-  setPhysicalPeopleControllers = (peopleControllers: PeopleController[], planets: Planet[]) => {
-    for (const peopleController of peopleControllers) {
-      this.peopleControllerTuples.push(tuple(peopleController, new PhysicsController(peopleController, planets, this, this.onLanding)))
+  public setPhysicalPeopleControllers = (peopleControllers: PeopleController[], planets: Planet[]) => {
+    for (let index = 0; index < peopleControllers.length; index++) {
+      const peopleController = peopleControllers[index];
+      this.peopleControllerTuples.push(tuple(peopleController, new PhysicsController(index, peopleController, this.currentPlanet, planets, this, this.onLanding)))
     }
   }
 
-  repulsePhysicalPeopleControllers() {
+  public repulsePhysicalPeopleControllers() {
     for (const peopleController of this.peopleControllerTuples) {
       const physicsController = peopleController[1]
       physicsController.setReleasedCursorPosition(this.cursor.cursorPos)
@@ -70,20 +68,21 @@ export default class GrabObject extends PhysicsObject {
     }
   }
 
-  removePeopleControllers() {
+  public clearPeopleControllerTuples() {
     this.peopleControllerTuples = []
   }
 
-  tick() {
-    switch (this.state) {
-      case "ROTATING":
-        {
-          this.rotateAroundPlanetOppositeFromMouse()
-          break;
-        }
+  public removePeopleControllerTuple(index: number) {
+    this.peopleControllerTuples[index] = tuple(null, null)
+  }
 
-      default:
-        break;
-    }
+  // TODO: help
+  public disappear(){
+    this.output.scale.setScalar(0)
+    this.hasDisappeared = true
+  }
+
+  public tick() {
+    if(!this.hasDisappeared) this.rotateAroundPlanet()
   }
 }

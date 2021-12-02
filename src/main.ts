@@ -21,7 +21,7 @@ setTimeout(() => {
   // "Dev mode"
   globalState.step = "game"
   mainMenu.style.display = "none"
-}, 500);
+}, 700);
 
 const webgl = new WebGL(canvas, globalState)
 

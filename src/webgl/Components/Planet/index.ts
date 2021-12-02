@@ -102,11 +102,15 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     Planet.initTextures()
     this.peoplesControllers = new Set()
     this.initMesh(params)
-    this.peopleDiedCb = params.onPeopleDie || (() => {})
-    this.planetDiedCb = params.onPlanetDie || (() => {})
-    this.spawnCb = params.onSpawn || (() => {})
+    this.peopleDiedCb = params.onPeopleDie || (() => { })
+    this.planetDiedCb = params.onPlanetDie || (() => { })
+    this.spawnCb = params.onSpawn || (() => { })
     this.lifespan = params.lifeSpan
     Planet.initGui(context, this)
+  }
+
+  public get isDead(): boolean {
+    return this.lifetime === 1
   }
 
   private static initTextures() {

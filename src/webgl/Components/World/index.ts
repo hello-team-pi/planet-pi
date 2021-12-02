@@ -3,9 +3,8 @@ import * as THREE from "three"
 import { MainSceneContext } from "../../Scenes/MainScene"
 import Planet from "../Planet"
 import { clamp } from "three/src/math/MathUtils"
-import CompanionCube from "../CompanionCube"
 import PeopleMesh from "../People/PeopleMesh"
-import GrabObject from "../GrabObject"
+import GrabObject, { OnLanding } from "../GrabObject"
 import PeopleController from "../People/PeopleController"
 import DeadController from "../People/DeadController"
 import remap from "../../../utils/math/remap"
@@ -25,6 +24,7 @@ export default class World extends AbstractObject<MainSceneContext> {
   private controllerStock: PeopleController[] = []
   private nextIndex = 0
   private spritesheet = new SpritesheetParser(json)
+  private activeGrabObjectIndex = 0 //TODO: hlep
 
   constructor(context: MainSceneContext) {
     super(context)
@@ -32,13 +32,14 @@ export default class World extends AbstractObject<MainSceneContext> {
     this.setWorld()
   }
 
-  private setWorld() {
+  private setWorld = () => {
     this.output = new THREE.Group()
     const planetTypes = tuple("blue" as const, "green" as const, "purple" as const)
     this.planets = planetRepartition.map((pos) => {
       const size = 75
       const scale = 3
       const newPos = tuple((pos.x - size / 2) * scale, (pos.y - size / 2) * scale, pos.z)
+
       return new Planet(this.context, {
         position: newPos,
         radius: remap(Math.random(), [0, 1], [1.5, 3]),
@@ -65,15 +66,35 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
     this.output.add(this.peopleMesh.mesh)
 
+    const onLanding : OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
+      landedPlanet.addPeopleController(physicsController.peopleController, Math.random() * Math.PI * 2)
+      grabObject.removePeopleControllerTuple(physicsController.index)
+
+      if(this.context.sceneState.currentPlanet !== landedPlanet) {
+        // TODO: help
+        // First one has landed
+
+        const newGrabObject = new GrabObject(
+          this.context,
+          landedPlanet,
+          70,
+          onLanding
+        )
+        this.grabObjects.push(newGrabObject)
+        this.tickingObjects.push(newGrabObject)
+        this.output.add(newGrabObject.output)
+        this.activeGrabObjectIndex++
+
+        this.context.sceneState.currentPlanet = landedPlanet
+      }
+    }
     const grabObject = new GrabObject(
       this.context,
       this.context.sceneState.currentPlanet,
       70,
-      (planet: Planet, physicsController: PhysicsController) => {
-        planet.addPeopleController(physicsController.peopleController, 0)
-        this.context.sceneState.currentPlanet = planet
-      }
+      onLanding
     )
+
     this.grabObjects.push(grabObject)
     this.tickingObjects.push(grabObject)
     this.output.add(grabObject.output)
@@ -134,27 +155,28 @@ export default class World extends AbstractObject<MainSceneContext> {
   // Remove les people controllers de la planete [x]
   // Activer les grabobject [x]
   private onMouseDown = () => {
-    const planet = this.planets[0]
+    const planet = this.context.sceneState.currentPlanet!
     const controllers = Array.from(planet.peopleData.keys())
 
     for (const controller of controllers) {
       planet.removePeopleController(controller)
     }
 
-    this.grabObjects[0].setPhysicalPeopleControllers(controllers, this.planets)
+    this.grabObjects[this.activeGrabObjectIndex].setPhysicalPeopleControllers(controllers, this.planets)
   }
 
   private onMouseUp = () => {
-    this.grabObjects[0].repulsePhysicalPeopleControllers()
+    this.grabObjects[this.activeGrabObjectIndex].repulsePhysicalPeopleControllers()
+    this.grabObjects[this.activeGrabObjectIndex].disappear()
   }
 
   setEvents() {
-    window.addEventListener("mousedown", this.onMouseDown)
-    window.addEventListener("mouseup", this.onMouseUp)
+    this.context.renderer.domElement.addEventListener("mousedown", this.onMouseDown)
+    this.context.renderer.domElement.addEventListener("mouseup", this.onMouseUp)
 
     this.toUnbind(() => {
-      window.removeEventListener("mousedown", this.onMouseDown)
-      window.removeEventListener("mouseup", this.onMouseUp)
+      this.context.renderer.domElement.removeEventListener("mousedown", this.onMouseDown)
+      this.context.renderer.domElement.removeEventListener("mouseup", this.onMouseUp)
     })
   }
 
@@ -173,6 +195,7 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
     for (const grabObject of this.grabObjects) {
       for (const peopleController of grabObject.peopleControllerTuples) {
+        if(!peopleController[0]) continue //TODO: hlep
         const physicsObject = peopleController[1]
         physicsObject.tick(...params)
       }

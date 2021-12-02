@@ -15,6 +15,8 @@ import greenGradient from "../../../assets/images/gradients/green_gradient.png"
 import purpleGradient from "../../../assets/images/gradients/purple_gradient.png"
 import planetModel from "../../../assets/models/planet_4.gltf"
 
+import gsap, { Cubic } from 'gsap'
+
 export default class MainScene extends AbstractObjectWithSize {
   public scene: THREE.Scene
   public camera: THREE.PerspectiveCamera
@@ -91,11 +93,18 @@ export default class MainScene extends AbstractObjectWithSize {
 
     this.state.__onChange(
       "currentPlanet",
-      (p) => {
-        if (p === null) return
-        this.camera.position.x = p.position.x
-        this.camera.position.y = p.position.y
-        this.orbit.target.copy(p.position)
+      (prop, prevProp) => {
+        if (prop === null) return
+
+        if (prevProp === null) {
+          // First time setting this prop
+          this.camera.position.x = prop.position.x
+          this.camera.position.y = prop.position.y
+        }
+
+        gsap.to(this.camera.position, { x: prop.position.x, y: prop.position.y, duration: 1, ease: Cubic.easeInOut })
+
+        this.orbit.target.copy(prop.position)
       },
       true,
     )
