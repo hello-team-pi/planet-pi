@@ -273,7 +273,9 @@ export default class Planet extends AbstractObject<MainSceneContext> {
         }
 
         const clampValue = Math.sign(value) * (Math.abs(value) > 0.2 ? 2 : 0)
-        let newRotation = data.rotation + clampValue * 0.005
+        const offset = clampValue * 0.005
+        const hasMoved = clampValue > 0
+        let newRotation = data.rotation + offset
         if (newRotation > Math.PI * 2) newRotation -= Math.PI * 2
         if (newRotation < 0) newRotation += Math.PI * 2
         data.rotation = newRotation
@@ -296,6 +298,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
           state = "overpopulation"
         } else if (Math.random() < Planet.spawnParams.spawnProba)
           this.spawnCb(this, this.peopleData.get(controller)!)
+
+        return hasMoved ? "walk" : "alive"
       })
     }
 

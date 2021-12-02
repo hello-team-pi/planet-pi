@@ -34,6 +34,7 @@ export default class DeadController {
       vec.copy(object.position)
       vec.project(this.context.camera)
       if (Math.abs(vec.x) > 1.1 || Math.abs(vec.y) > 1.1) this.removeCb(this)
+      return "dead"
     })
   }
 }
