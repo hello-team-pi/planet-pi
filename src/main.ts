@@ -1,9 +1,23 @@
 import "./style.css"
 import WebGL from "./webgl"
 import Stats from "stats.js"
+import observableState from "./utils/observableState"
 const canvas = document.querySelector<HTMLCanvasElement>("#webgl")!
 
-const webgl = new WebGL(canvas)
+type GameStep = "start" | "game"
+
+const globalState = observableState<{ step: GameStep }>({ step: "start" })
+export type GlobalState = typeof globalState
+
+const mainMenu = document.querySelector<HTMLElement>("#mainMenu")!
+const startButton = mainMenu.querySelector<HTMLButtonElement>(".button")!
+
+startButton.addEventListener("click", () => {
+  globalState.step = "game"
+  mainMenu.style.display = "none"
+})
+
+const webgl = new WebGL(canvas, globalState)
 
 const stats = new Stats()
 document.body.appendChild(stats.dom)

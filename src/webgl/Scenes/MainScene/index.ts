@@ -54,6 +54,8 @@ export default class MainScene extends AbstractObjectWithSize {
       >
       // mesh.material.normalMap
       this.assets.planetGeometry = mesh.geometry
+    })
+    this.context.globalState.__onChange("step", (step) => {
       const world = new World(this.genContext())
       this.tickingObjects.push(world)
       this.scene.add(world.output)
