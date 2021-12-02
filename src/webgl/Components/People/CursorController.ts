@@ -6,7 +6,7 @@ import Planet from "../Planet"
 
 export default class CursorController extends AbstractObjectWithSize<MainSceneContext> {
   public cursorPos: THREE.Vector3 = new THREE.Vector3()
-  public isDragging = false
+  public isClicking = false
   private currentPlanet: Planet | null = null
 
   constructor(context: MainSceneContext) {
@@ -35,8 +35,9 @@ export default class CursorController extends AbstractObjectWithSize<MainSceneCo
   }
 
 
+  // Not used for now
   private handleDrag = (e: MouseEvent) => {
-    if (!this.isDragging) return
+    if (!this.isClicking) return
 
     const plane = new THREE.Plane(new THREE.Vector3(0, 0, -1))
     plane.constant = 0
@@ -49,13 +50,12 @@ export default class CursorController extends AbstractObjectWithSize<MainSceneCo
   }
 
   public click(planet: Planet) {
-    this.isDragging = true
+    this.isClicking = true
     this.currentPlanet = planet
   }
 
   public release() {
-    this.isDragging = false
-
+    this.isClicking = false
   }
 
   public destroy() {

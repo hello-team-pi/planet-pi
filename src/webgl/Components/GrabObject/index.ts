@@ -5,56 +5,102 @@ import PhysicsObject from "../PhysicsObject";
 import Planet from "../Planet";
 import peopleImage from "../../../assets/images/perso.png"
 import CompanionCube from "../CompanionCube";
+import { fromPolarX, fromPolarY } from "../../../utils/math/fromPolar";
+import People from "../People";
+import PeopleController from "../People/PeopleController";
+import tuple from "../../../utils/types/tuple";
+import PhysicsController from "../People/PhysicsController";
 
 const temporaryVectors = {
   gravity: new Vector3(),
-  mouseDownTarget: new Vector3(),
-  oppositePosition: new Vector3()
+  target: new Vector3(),
+  oppositePosition: new Vector3(),
+  lerpedTargetRotation: new Vector3()
 }
 
 export default class GrabObject extends PhysicsObject {
   public output: Mesh
+  public peopleControllerTuples: [PeopleController, PhysicsController][]
   private cursor: CursorController
   private currentPlanet: Planet
-  private targetPlanet: Planet
   private onReleaseCallbacks: Map<string, Function>
-  private state: "REPULSING" | "IDLE" | "LANDED"
-  private companions: CompanionCube[]
+  private state: "ATTRACTING" | "IDLE" | "PROJECTING"
+  private companions: CompanionCube[] // TODO: replace this
 
   constructor(context: MainSceneContext, originPlanet: Planet, targetPlanet: Planet, companions: CompanionCube[], mass = 1) {
-    super(context, mass)
+    super(mass)
 
     this.cursor = new CursorController(context)
     this.currentPlanet = originPlanet
     this.cursor.setCurrentPlanet(this.currentPlanet)
-    this.targetPlanet = targetPlanet
     this.output = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial({ map: new TextureLoader().load(peopleImage) }))
     this.output.scale.setScalar(1)
     this.onReleaseCallbacks = new Map()
     this.state = "IDLE"
     this.companions = companions
+    this.peopleControllerTuples = []
 
-    // this.reset()
-    this.rotateAroundPlanet(this.currentPlanet)
+    this.rotateAroundPlanetOppositeFromMouse()
     this.setEvents()
   }
 
-  reset = () => {
-    this.forces = []
+  follow(origin: Vector3, target: Vector3) {
+    temporaryVectors.target.copy(target)
+    temporaryVectors.target.sub(origin)
+    const distance = temporaryVectors.target.length()
+    temporaryVectors.target.normalize()
+    temporaryVectors.target.multiplyScalar(distance)
+    return temporaryVectors.target
+  }
 
-    this.velocity.setX(this.currentPlanet.radius * Math.sin(Math.random() * Math.PI * 2))
-    this.velocity.setY(this.currentPlanet.radius * Math.cos(Math.random() * Math.PI * 2))
-    this.velocity.setZ(0)
+  rotateAroundPlanetOppositeFromMouse(alpha = 0.75) {
+    const angle = -Math.atan2(this.cursor.cursorPos.y - this.currentPlanet.position.y, this.cursor.cursorPos.x - this.currentPlanet.position.x)
+
+    const offsetFromRadius = 0.8
+
+    const x = fromPolarX(this.currentPlanet.radius + offsetFromRadius, angle - Math.PI / 2)
+    const y = fromPolarY(this.currentPlanet.radius + offsetFromRadius, angle - Math.PI / 2)
+
+    temporaryVectors.lerpedTargetRotation.set(x, y, 0)
+    this.output.position.lerp(temporaryVectors.lerpedTargetRotation, alpha)
+  }
+
+  attractToGrab() {
+    for (const companion of this.companions) {
+      const cancel = companion.output.position.distanceTo(this.output.position) <= 1
+      if (cancel) continue
+
+      // const force = companion.attract(this.output.position, companion.output.position, 0.01)
+      const followForce = this.follow(companion.output.position, this.output.position)
+
+      const collisionOnPlanet = companion.output.position.distanceTo(this.currentPlanet.position) < this.currentPlanet.radius + 0.3
+      if (collisionOnPlanet) continue
+
+      companion.addForce(followForce)
+    }
+  }
+
+  setPeopleControllers(peopleControllers: PeopleController[]) {
+    for (const peopleController of peopleControllers) {
+      this.peopleControllerTuples.push(tuple(peopleController, new PhysicsController(peopleController)))
+    }
+  }
+
+  removePeopleControllers() {
+    this.peopleControllerTuples = []
   }
 
   onMouseDown = () => {
+    this.state = "ATTRACTING"
     this.cursor.click(this.currentPlanet)
-    this.onReleaseCallbacks.set("repulse", () => {
-      this.state = "REPULSING"
+    this.onReleaseCallbacks.set("project", () => {
+      // Project
+
     })
   }
 
   onMouseUp = () => {
+    this.state = "IDLE"
     this.cursor.release()
 
     for (const entry of this.onReleaseCallbacks.entries()) {
@@ -75,90 +121,33 @@ export default class GrabObject extends PhysicsObject {
     })
   }
 
-  attractPlanet(planet: Planet, targetMass = 0.1) {
-    const [gravityVector, stop] = this.attractToPlanet(planet, this.output.position, targetMass)
-    if (stop) this.state = "LANDED"
-    else if (gravityVector.length()) this.forces.push(gravityVector)
-  }
-
-  repulseMouse() {
-    temporaryVectors.mouseDownTarget.copy(this.output.position)
-    temporaryVectors.mouseDownTarget.sub(this.cursor.cursorPos)
-    this.forces.push(temporaryVectors.mouseDownTarget)
-  }
-
-  attractMouse() {
-    temporaryVectors.mouseDownTarget.copy(this.cursor.cursorPos)
-    temporaryVectors.mouseDownTarget.sub(this.output.position)
-    const distance = temporaryVectors.mouseDownTarget.length()
-    temporaryVectors.mouseDownTarget.normalize()
-    temporaryVectors.mouseDownTarget.multiplyScalar(distance)
-    this.forces.push(temporaryVectors.mouseDownTarget)
-  }
-
-  toPolarX(radius: number, angle: number) {
-    return radius * Math.sin(angle)
-  }
-
-  toPolarY(radius: number, angle: number) {
-    return radius * Math.cos(angle)
-  }
-
-  rotateAroundPlanet(planet: Planet) {
-    const angle = -Math.atan2(this.cursor.cursorPos.y - this.currentPlanet.position.y, this.cursor.cursorPos.x - this.currentPlanet.position.x)
-
-    const x = this.toPolarX(planet.radius, angle - Math.PI / 2)
-    const y = this.toPolarY(planet.radius, angle - Math.PI / 2)
-
-    this.velocity.set(x, y, 0)
-  }
-
-  attractToGrab() {
-    for (const companion of this.companions) {
-      const attraction = companion.attract(this.velocity, companion.velocity, 0.1)
-      companion.addForce(attraction)
-    }
-  }
-
   tick() {
-    // this.attractPlanet()
-    // this.repulseMouse()
+    switch (this.state) {
+      case "IDLE":
+        {
+          this.rotateAroundPlanetOppositeFromMouse()
+          break;
+        }
 
-    // if (this.cursor.isDragging) {
-    //   this.attractMouse()
-    // } else if (this.state === "REPULSING") {
-    //   this.repulseMouse()
-    //   this.attractPlanet(this.targetPlanet, 1.2)
-    // } else if (this.state === "LANDED") {
 
-    // }
+      case "ATTRACTING":
+        {
+          this.attractToGrab()
+          break;
+        }
 
-    // this.attractMouse()
+      case "PROJECTING":
+        {
+          // Do things
+          // const physicsObject = this.peopleControllerTuples[1]);
 
-    this.rotateAroundPlanet(this.currentPlanet)
 
-    if (this.cursor.isDragging) {
-      this.attractToGrab()
+          break
+        }
+
+      default:
+        break;
     }
 
-
-    // this.tickPhysics()
-    this.output.position.copy(this.velocity)
-
-    // Reset when out of bounds
-    // const limit = 8
-    // if (this.output.position.y >= limit) {
-    //   this.reset()
-    // } else if (this.output.position.y <= -limit) {
-    //   this.reset()
-    // } else if (this.output.position.x >= limit) {
-    //   this.reset()
-    // } else if (this.output.position.x <= -limit) {
-    //   this.reset()
-    // } else if (this.output.position.z >= limit) {
-    //   this.reset()
-    // } else if (this.output.position.z <= -limit) {
-    //   this.reset()
-    // }
   }
 }

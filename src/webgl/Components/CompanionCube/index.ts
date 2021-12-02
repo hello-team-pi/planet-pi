@@ -19,7 +19,7 @@ export default class CompanionCube extends PhysicsObject {
   private state: "REPULSING" | "IDLE" | "LANDED"
 
   constructor(context: MainSceneContext, originPlanet: Planet, targetPlanet: Planet, mass = 1) {
-    super(context, mass)
+    super(mass)
 
     this.cursor = new CursorController(context)
     this.currentPlanet = originPlanet
@@ -28,13 +28,14 @@ export default class CompanionCube extends PhysicsObject {
     this.output.scale.setScalar(1)
     this.onReleaseCallbacks = new Map()
     this.state = "IDLE"
+    this.forces = new Map()
 
     this.reset()
     this.setEvents()
   }
 
   reset = () => {
-    this.forces = []
+    this.forces.clear()
 
     this.velocity.setX(this.currentPlanet.radius * Math.sin(Math.random() * Math.PI * 2))
     this.velocity.setY(this.currentPlanet.radius * Math.cos(Math.random() * Math.PI * 2))
@@ -72,13 +73,13 @@ export default class CompanionCube extends PhysicsObject {
   attractPlanet(planet: Planet, targetMass = 0.1) {
     const [gravityVector, stop] = this.attractToPlanet(planet, this.output.position, targetMass)
     if (stop) this.state = "LANDED"
-    else if (gravityVector.length()) this.forces.push(gravityVector)
+    else if (gravityVector.length()) this.forces.set("gravity", gravityVector)
   }
 
   repulseMouse() {
     temporaryVectors.mouseDownTarget.copy(this.output.position)
     temporaryVectors.mouseDownTarget.sub(this.cursor.cursorPos)
-    this.forces.push(temporaryVectors.mouseDownTarget)
+    this.forces.set("repulseMouse", temporaryVectors.mouseDownTarget)
   }
 
   attractMouse() {
@@ -87,7 +88,7 @@ export default class CompanionCube extends PhysicsObject {
     const distance = temporaryVectors.mouseDownTarget.length()
     temporaryVectors.mouseDownTarget.normalize()
     temporaryVectors.mouseDownTarget.multiplyScalar(distance)
-    this.forces.push(temporaryVectors.mouseDownTarget)
+    this.forces.set("attractMouse", temporaryVectors.mouseDownTarget)
   }
 
   tick() {

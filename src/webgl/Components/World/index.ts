@@ -11,12 +11,14 @@ import DeadController from "../People/DeadController"
 import remap from "../../../utils/math/remap"
 import SpritesheetParser from "../SpritesheetParser"
 import json from "../../../assets/spritesheets/spritesheet.json"
+import AbstractObjectNoContext from "../../Abstract/AbstractObjectNoContext"
 
 export default class World extends AbstractObject<MainSceneContext> {
-  private tickingObjects: AbstractObject[] = []
+  private tickingObjects: AbstractObjectNoContext[] = []
   private peopleMesh: PeopleMesh
   private planets: Planet[]
   private dead: DeadController[] = []
+  private grabObjects: GrabObject[] = []
   private controllerStock: PeopleController[] = []
   private nextIndex = 0
   private spritesheet = new SpritesheetParser(json)
@@ -137,6 +139,13 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
     for (const dead of this.dead) {
       dead.tick(...params)
+    }
+    for (const grab of this.grabObjects) {
+      for (const peopleController of grab.peopleControllerTuples) {
+        const physicsObject = peopleController[1]
+        physicsObject.tick(...params)
+      }
+      grab.tick()
     }
     this.peopleMesh.mesh.instanceMatrix.needsUpdate = true
   }

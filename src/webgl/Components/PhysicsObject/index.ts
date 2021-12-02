@@ -2,6 +2,7 @@ import { Vector3 } from "three";
 import { WebGLAppContext } from "../..";
 import tuple from "../../../utils/types/tuple";
 import AbstractObject from "../../Abstract/AbstractObject";
+import AbstractObjectNoContext from "../../Abstract/AbstractObjectNoContext";
 import Planet from "../Planet";
 
 // https://natureofcode.com/book/chapter-2-forces/
@@ -12,34 +13,33 @@ const temporaryVectors = {
   force: new Vector3()
 }
 
-export default abstract class PhysicsObject extends AbstractObject {
+export default abstract class PhysicsObject extends AbstractObjectNoContext {
   mass: number
-  forces: Vector3[]
+  forces: Map<string, Vector3>
   acceleration: Vector3
   velocity: Vector3
 
-  constructor(context: WebGLAppContext, mass: number) {
-    super(context)
-
+  constructor(mass: number) {
+    super()
     this.mass = mass
-    this.forces = []
+    this.forces = new Map()
     this.acceleration = new Vector3()
     this.velocity = new Vector3()
   }
 
-  attract(origin: Vector3, target: Vector3, targetMass = 2, G = 0.4) {
-    temporaryVectors.attraction.setScalar(1)
+  // attract(origin: Vector3, target: Vector3, limit = 10, targetMass = 2, G = 0.4) {
+  //   temporaryVectors.attraction.setScalar(0)
 
-    temporaryVectors.attraction.subVectors(origin, target)
-    const distance = temporaryVectors.attraction.length()
+  //   temporaryVectors.attraction.subVectors(origin, target)
+  //   const distance = temporaryVectors.attraction.length()
 
-    temporaryVectors.attraction.normalize()
+  //   temporaryVectors.attraction.normalize()
 
-    const strength = (G * this.mass * targetMass) / (distance * distance);
-    temporaryVectors.attraction.multiplyScalar(strength);
+  //   const strength = (G * this.mass * targetMass) / (distance * distance);
+  //   temporaryVectors.attraction.multiplyScalar(strength);
 
-    return temporaryVectors.attraction
-  }
+  //   return temporaryVectors.attraction
+  // }
 
   attractToPlanet(origin: Planet, target: Vector3, targetMass = 2, G = 0.4) {
     temporaryVectors.attraction.setScalar(1)
@@ -66,10 +66,9 @@ export default abstract class PhysicsObject extends AbstractObject {
   }
 
   tickPhysics() {
-    for (const force of this.forces) {
+    for (const force of this.forces.values()) {
       this.addForce(force)
     }
-    this.forces = []
     this.velocity.add(this.acceleration)
     this.acceleration.setScalar(0)
   }
