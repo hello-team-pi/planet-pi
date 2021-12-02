@@ -9,7 +9,7 @@ import FluidMaterial from "../../Material/FluidMaterial"
 import remap from "../../../utils/math/remap"
 import dangerBackUi from "../../../assets/images/ui/hud_quit_planet.png"
 import overpopulationBackUi from "../../../assets/images/ui/hud_overpopulation.png"
-import dangerFrontUi from "../../../assets/images/ui/hud_quit_planet.png"
+import dangerFrontUi from "../../../assets/images/ui/ico-eject.png"
 import overpopulationFrontUi from "../../../assets/images/ui/ico-attention.png"
 
 type PeopleData = { rotation: number }
@@ -45,6 +45,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private lifespan: number
   private lifetime: number = 0
   private isDying = false
+  private uiState: "none" | "overpopulation" | "danger" = "none"
+  private timer = 0
 
   public peopleData: Map<PeopleController, { rotation: number }> = new Map()
 
@@ -173,16 +175,18 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.planetMesh = new THREE.Mesh(geometry, this.fluidMaterial.material)
     this.planetMesh.rotation.set(randomRotation.x - Math.PI / 2, randomRotation.y, randomRotation.z)
 
-    this.frontUI = new THREE.Mesh(
+    this.backUI = new THREE.Mesh(
       new THREE.PlaneGeometry(8, 8),
       new THREE.MeshBasicMaterial({
         transparent: true,
         map: Planet.textures.back.overpopulation,
       }),
     )
-    this.frontUI.position.z = -0.1
-    this.frontUI.position.y = radius * 0.2
-    this.backUI = new THREE.Mesh(
+    this.backUI.position.z = -0.1
+    this.backUI.position.y = 0.7
+    this.backUI.visible = false
+
+    this.frontUI = new THREE.Mesh(
       new THREE.PlaneGeometry(2, 2),
       new THREE.MeshBasicMaterial({
         transparent: true,
@@ -190,6 +194,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
         depthTest: false,
       }),
     )
+    this.frontUI.visible = false
+    this.frontUI.position.y = 0.2
 
     this.output = new THREE.Object3D()
     this.output.position.fromArray(position)
@@ -198,8 +204,16 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.startRadius = radius
   }
 
-  private setUI(type: "none" | "overpopulation" | "danger") {
-    // this.frontUI.
+  private setUI(state: Planet["uiState"]) {
+    const visible = state !== "none" && Math.floor(this.timer * 2) % 2 === 0
+    this.frontUI.visible = visible
+    this.backUI.visible = visible
+    if (this.uiState === state) return
+    this.timer = 0
+    if (state === "none") return
+    this.frontUI.material.map = Planet.textures.front[state]
+    this.backUI.material.map = Planet.textures.back[state]
+    this.uiState = state
   }
 
   private kill(peopleController: PeopleController) {
@@ -223,22 +237,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   }
 
   public tick(time: number, deltaTime: number) {
-    if (this.isDying) {
-      const lastLifeTime = this.lifetime
-      this.lifetime = Math.min(this.lifetime + deltaTime / this.lifespan, 1)
-      this.radius = remap(
-        Easing.Quadratic.Out(this.lifetime),
-        [0, 1],
-        [this.startRadius, this.startRadius * 0.6],
-      )
-      if (this.lifetime >= 1 && lastLifeTime < 1) {
-        this.killAll()
-        this.planetDiedCb()
-      }
-      this.fluidMaterial.updateLifetime(this.lifetime)
-    }
-
     const minDistSq = Planet.spawnParams.minimumDist * Planet.spawnParams.minimumDist
+    let state: Planet["uiState"] = this.uiState
 
     for (const controller of this.peoplesControllers) {
       const data = this.peopleData.get(controller)!
@@ -291,11 +291,33 @@ export default class Planet extends AbstractObject<MainSceneContext> {
         object.quaternion.multiply(q)
         object.updateMatrix()
 
-        if (closeNeighbour > Planet.spawnParams.neighbourLimit) this.kill(controller)
-        else if (Math.random() < Planet.spawnParams.spawnProba)
+        if (closeNeighbour > Planet.spawnParams.neighbourLimit) {
+          this.kill(controller)
+          state = "overpopulation"
+        } else if (Math.random() < Planet.spawnParams.spawnProba)
           this.spawnCb(this, this.peopleData.get(controller)!)
       })
     }
+
+    if (this.isDying) {
+      const lastLifeTime = this.lifetime
+      this.lifetime = Math.min(this.lifetime + deltaTime / this.lifespan, 1)
+      this.radius = remap(
+        Easing.Quadratic.Out(this.lifetime),
+        [0, 1],
+        [this.startRadius, this.startRadius * 0.6],
+      )
+      if (this.lifespan - this.lifetime * this.lifespan < 5) state = "danger"
+      if (this.lifetime >= 1) state = "none"
+      if (this.lifetime >= 1 && lastLifeTime < 1) {
+        this.killAll()
+        this.planetDiedCb()
+      }
+      this.fluidMaterial.updateLifetime(this.lifetime)
+    }
+    this.timer += deltaTime
+    this.setUI(state)
+
     this.fluidMaterial.tick(time, deltaTime)
   }
 }
