@@ -6,7 +6,6 @@ import Planet from "../Planet";
 import peopleImage from "../../../assets/images/placeholder.png"
 import CompanionCube from "../CompanionCube";
 import { fromPolarX, fromPolarY } from "../../../utils/math/fromPolar";
-import People from "../People";
 import PeopleController from "../People/PeopleController";
 import tuple from "../../../utils/types/tuple";
 import PhysicsController from "../People/PhysicsController";
