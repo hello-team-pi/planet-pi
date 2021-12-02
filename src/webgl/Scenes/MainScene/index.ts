@@ -4,16 +4,16 @@ import * as THREE from "three"
 import { WebGLAppContext } from "../.."
 import AbstractObject from "../../Abstract/AbstractObject"
 import AbstractObjectWithSize from "../../Abstract/AbstractObjectWithSize"
-import Background from "../../Components/Background"
+import Planet from "../../Components/Planet"
+import SciFiBackground from "../../Components/SciFiBackground"
 import World from "../../Components/World"
+import observableState from "../../../utils/observableState"
 
 import spritesheet from "../../../assets/spritesheets/spritesheet.png"
 import blueGradient from "../../../assets/images/gradients/blue_gradient.png"
 import greenGradient from "../../../assets/images/gradients/green_gradient.png"
 import purpleGradient from "../../../assets/images/gradients/purple_gradient.png"
 import planetModel from "../../../assets/models/planet_4.gltf"
-import observableState from "../../../utils/observableState"
-import Planet from "../../Components/Planet"
 
 export default class MainScene extends AbstractObjectWithSize {
   public scene: THREE.Scene
@@ -105,8 +105,9 @@ export default class MainScene extends AbstractObjectWithSize {
     this.scene = new THREE.Scene()
     this.scene.background = new THREE.Color(0x000000)
 
-    const background = new Background(this.genContext())
+    const background = new SciFiBackground(this.genContext())
     this.scene.add(background.output)
+    this.tickingObjects.push(background)
   }
 
   public tick(...params: Parameters<AbstractObject["tick"]>) {

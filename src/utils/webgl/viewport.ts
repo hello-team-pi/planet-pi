@@ -1,11 +1,17 @@
-import * as THREE from 'three'
+import * as THREE from "three"
 
 const position = new THREE.Vector3()
 const defaultTarget = new THREE.Vector3()
 const tempTarget = new THREE.Vector3()
 
-function getViewport(camera: THREE.Camera, target: THREE.Vector3 | Parameters<THREE.Vector3['set']> = defaultTarget) {
-  const { width, height } = { width: window.innerWidth, height: window.innerHeight }
+function getViewport(
+  camera: THREE.Camera,
+  target: THREE.Vector3 | Parameters<THREE.Vector3["set"]> = defaultTarget,
+  { width, height }: { width: number; height: number } = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  },
+) {
   const aspect = width / height
   if (target instanceof THREE.Vector3) tempTarget.copy(target)
   else tempTarget.set(...target)
