@@ -1,4 +1,4 @@
-type Animation = "alive" | "dead" | "walk" | "spawn"
+export type Animation = "alive" | "dead" | "walk" | "spawn"
 
 const ANIMATION_CYCLES: Record<Animation, string[]> = {
   alive: ["alive.png"],

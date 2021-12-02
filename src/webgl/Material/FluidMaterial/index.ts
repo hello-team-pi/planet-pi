@@ -10,7 +10,7 @@ const DEFAULT_PARAMS = {
   fresnelPower: 1.5,
   noiseScale: 3,
   noiseStrength: 0.05,
-  loopCount: 10,
+  loopCount: 13,
   gradient: new THREE.Texture(),
   speed: 0.3,
 }

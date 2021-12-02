@@ -134,7 +134,7 @@ export default class World extends AbstractObject<MainSceneContext> {
 
   private handleDeadRemoval = (controller: DeadController) => {
     const peopleController = controller.peopleController
-    peopleController.updatePeople((o) => o.position.set(-1000, -1000, -1000))
+    peopleController.updatePeople((o) => void o.position.set(-1000, -1000, -1000))
     const index = this.dead.indexOf(controller)
     if (index > -1) this.dead.splice(index, 1)
     return this.controllerStock.push(peopleController)

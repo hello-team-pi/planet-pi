@@ -1,12 +1,6 @@
 import * as THREE from "three"
-import cremap from "../../../utils/math/cremap"
-import Easing from "easing-functions"
-import Animator from "../Animator"
+import Animator, { Animation } from "../Animator"
 import SpritesheetParser from "../SpritesheetParser"
-
-type Planet = { radius: number; position: THREE.Vector3 }
-
-type PeopleState = "alive" | "dead" | "projected" | "onPlanet"
 
 export default class PeopleController {
   public object: THREE.Object3D
@@ -62,8 +56,10 @@ export default class PeopleController {
     this.mesh.geometry.attributes["aUvOffset"].needsUpdate = true
   }
 
-  public updatePeople(transform: (object: THREE.Object3D) => void) {
-    transform(this.object)
+  public updatePeople(transform: (object: THREE.Object3D) => void | Animation) {
+    const anim = transform(this.object)
+    if (anim) this.animator.setAnimation(anim)
+
     this.object.updateMatrix()
     this.mesh.setMatrixAt(this.index, this.object.matrix)
     this.updateAnim()
