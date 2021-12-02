@@ -75,7 +75,7 @@ export default class SciFiBackground extends AbstractObjectWithSize<MainSceneCon
     )
     this.uniforms.uGridOffset.value.set(
       (cam.position.x / width) * this.windowSize.state.width,
-      (cam.position.x / height) * this.windowSize.state.height,
+      (cam.position.y / height) * this.windowSize.state.height,
     )
   }
 
