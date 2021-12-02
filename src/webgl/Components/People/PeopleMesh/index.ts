@@ -73,7 +73,13 @@ export default class PeopleMesh {
     geometry.setAttribute("aIndex", new THREE.InstancedBufferAttribute(index, 1, false))
 
     // UV offsets
-    const uvOffsets = new Float32Array(new Array(this.maxAmount * 4).fill(0))
+    const uvOffsets = new Float32Array(this.maxAmount * 4)
+    for (let index = 0; index < this.maxAmount; index++) {
+      uvOffsets[index * 4 + 0] = 0
+      uvOffsets[index * 4 + 1] = 0
+      uvOffsets[index * 4 + 2] = 0.2
+      uvOffsets[index * 4 + 3] = 0.2
+    }
     geometry.setAttribute("aUvOffset", new THREE.InstancedBufferAttribute(uvOffsets, 4))
     return geometry
   }
