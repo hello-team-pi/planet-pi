@@ -172,11 +172,11 @@ export default class World extends AbstractObject<MainSceneContext> {
 
   setEvents() {
     this.context.renderer.domElement.addEventListener("mousedown", this.onMouseDown)
-    this.context.renderer.domElement.addEventListener("mouseup", this.onMouseUp)
+    window.addEventListener("mouseup", this.onMouseUp)
 
     this.toUnbind(() => {
       this.context.renderer.domElement.removeEventListener("mousedown", this.onMouseDown)
-      this.context.renderer.domElement.removeEventListener("mouseup", this.onMouseUp)
+      window.removeEventListener("mouseup", this.onMouseUp)
     })
   }
 
