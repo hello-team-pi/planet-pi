@@ -44,7 +44,7 @@ export default class World extends AbstractObject<MainSceneContext> {
         radius: remap(Math.random(), [0, 1], [1.5, 3]),
         type: planetTypes[Math.floor(Math.random() * planetTypes.length)],
         lifeSpan: remap(Math.random(), [0, 1], [10, 30]),
-        onPlanetDie: () => console.log("slt"),
+        onPlanetDie: () => this.context.globalState.deadPlanet++,
         onPeopleDie: this.handleDeadFromPlanet,
         onSpawn: this.handleSpawn,
       })
@@ -61,20 +61,28 @@ export default class World extends AbstractObject<MainSceneContext> {
     this.peopleMesh.mesh.count = startAmount
 
     for (let index = 0; index < startAmount; index++) {
-      this.context.sceneState.currentPlanet.addPeopleController(this.queryController(), Math.PI * 2 * Math.random())
+      this.context.sceneState.currentPlanet.addPeopleController(
+        this.queryController(),
+        Math.PI * 2 * Math.random(),
+      )
     }
     this.output.add(this.peopleMesh.mesh)
 
-    const onProjectionDeath : OnDeath = (physicsController) => {
+    const onProjectionDeath: OnDeath = (physicsController) => {
       physicsController.grabObject.removePeopleControllerTuple(physicsController.index)
-      this.handleDeadFromPlanet(physicsController.peopleController, {rotation: Math.random() * Math.PI * 2})
+      this.handleDeadFromPlanet(physicsController.peopleController, {
+        rotation: Math.random() * Math.PI * 2,
+      })
     }
 
-    const onLanding : OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
-      landedPlanet.addPeopleController(physicsController.peopleController, Math.random() * Math.PI * 2)
+    const onLanding: OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
+      landedPlanet.addPeopleController(
+        physicsController.peopleController,
+        Math.random() * Math.PI * 2,
+      )
       grabObject.removePeopleControllerTuple(physicsController.index)
 
-      if(this.context.sceneState.currentPlanet !== landedPlanet) {
+      if (this.context.sceneState.currentPlanet !== landedPlanet) {
         // /TODO: hlep
         // First one has landed
 
@@ -83,7 +91,7 @@ export default class World extends AbstractObject<MainSceneContext> {
           landedPlanet,
           70,
           onLanding,
-          onProjectionDeath
+          onProjectionDeath,
         )
         this.grabObjects.push(newGrabObject)
         this.tickingObjects.push(newGrabObject)
@@ -98,7 +106,7 @@ export default class World extends AbstractObject<MainSceneContext> {
       this.context.sceneState.currentPlanet,
       70,
       onLanding,
-      onProjectionDeath
+      onProjectionDeath,
     )
 
     this.grabObjects.push(grabObject)
@@ -117,7 +125,7 @@ export default class World extends AbstractObject<MainSceneContext> {
       )
       this.peopleMesh.mesh.count++
       this.nextIndex++
-        ; (window as any).i = this.nextIndex
+      ;(window as any).i = this.nextIndex
       return controller
     }
     return this.controllerStock.pop()!
@@ -127,6 +135,7 @@ export default class World extends AbstractObject<MainSceneContext> {
     controller: PeopleController,
     { rotation }: { rotation: number },
   ) => {
+    this.context.globalState.deadPeople++
     const speed = remap(Math.random(), [0, 1], [0.01, 0.02])
     const finalRotation = remap(Math.random(), [0, 1], [-0.01, 0.01]) + rotation
     this.dead.push(
@@ -168,7 +177,10 @@ export default class World extends AbstractObject<MainSceneContext> {
       planet.removePeopleController(controller)
     }
 
-    this.grabObjects[this.activeGrabObjectIndex].setPhysicalPeopleControllers(controllers, this.planets)
+    this.grabObjects[this.activeGrabObjectIndex].setPhysicalPeopleControllers(
+      controllers,
+      this.planets,
+    )
   }
 
   private onMouseUp = () => {
@@ -201,7 +213,7 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
     for (const grabObject of this.grabObjects) {
       for (const peopleController of grabObject.peopleControllerTuples) {
-        if(!peopleController[0]) continue //TODO: hlep
+        if (!peopleController[0]) continue //TODO: hlep
         const physicsObject = peopleController[1]
         physicsObject.tick(...params)
       }
