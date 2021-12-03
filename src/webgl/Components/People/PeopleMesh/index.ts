@@ -31,7 +31,7 @@ export default class PeopleMesh {
       fragmentShader,
       vertexShader,
       uniforms: {
-        uTexture: { value: new THREE.TextureLoader().load(spritesheetImage) },
+        uTexture: { value: this.context.assets.peopleSpritesheet },
         uBodyColor: { value: new THREE.Color(this.theme.body) },
         uHeadColor: { value: new THREE.Color(this.theme.head) },
         uMouthColor: { value: new THREE.Color(this.theme.mouth) },
