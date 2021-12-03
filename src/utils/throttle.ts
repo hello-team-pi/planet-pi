@@ -1,17 +1,17 @@
-
 /**
  * @param {Function} func
  * @param {Number} limit
  */
- export function throttle(func: Function, limit: number) {
-  let inThrottle:any;
+export function throttle(func: Function, limit: number) {
+  let inThrottle: any
   return function () {
-    const args = arguments;
-    const context = this;
+    const args = arguments
+    /* @ts-ignore */
+    const context = this
     if (!inThrottle) {
-      func.apply(context, args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
+      func.apply(context, args)
+      inThrottle = true
+      setTimeout(() => (inThrottle = false), limit)
     }
-  };
+  }
 }
