@@ -18,8 +18,14 @@ import tuple from "../../../utils/types/tuple"
 import PhysicsController from "../People/PhysicsController"
 import getViewport, { Viewport } from "../../../utils/webgl/viewport"
 import gsap, {Cubic} from "gsap/all"
+import { PeopleControllerTuples } from "../GrabObject"
 
-export type PeopleControllerTuples = [PeopleController, PhysicsController][]
+export type OnLanding = (
+  previousPlanet: Planet,
+  landedPlanet: Planet,
+  physicsController: PhysicsController,
+) => void
+export type OnDeath = (physicsController: PhysicsController) => void
 
 const temporaryVectors = {
   gravity: new Vector3(),
@@ -28,11 +34,13 @@ const temporaryVectors = {
   lerpedTargetRotation: new Vector3(),
 }
 
-export default class GrabObject extends PhysicsObject {
+export default class LaunchObject extends PhysicsObject {
   public output: Object3D
-  public peopleControllerTuples: PeopleControllerTuples
+  public peopleControllerTuples: PeopleControllerTuples //TODO: hlep
   public cursor: CursorController
   private currentPlanet: Planet
+  private onLanding: OnLanding
+  private onDeath: OnDeath
   private viewport: Viewport
   private offsetRadius = 1.2
   private icon: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
@@ -85,31 +93,39 @@ export default class GrabObject extends PhysicsObject {
     this.output.position.lerp(temporaryVectors.lerpedTargetRotation, alpha)
   }
 
-  public setPhysicalPeopleControllers = (
-    planets: Planet[],
-  ) => {
-    const controllers = this.currentPlanet.peopleData.keys()
-    for (const controller of controllers) {
+  // public setPhysicalPeopleControllers = (
+  //   planets: Planet[],
+  // ) => {
+  //   const controllers = this.currentPlanet.peopleData.keys()
+  //   for (const controller of controllers) {
       
-      this.peopleControllerTuples.push(
-        tuple(
-          controller,
-          new PhysicsController(
-            controller,
-            this.currentPlanet,
-            planets,
-            this.viewport,
-            this,
-          ),
-        ),
-      )
-    }
+  //     this.peopleControllerTuples.push(
+  //       tuple(
+  //         controller,
+  //         new PhysicsController(
+  //           controller,
+  //           this.currentPlanet,
+  //           planets,
+  //           this,
+  //           this.viewport,
+  //           this.onLanding,
+  //           this.onDeath,
+  //         ),
+  //       ),
+  //     )
+  //   }
+  // }
+
+  public setPeopleControllerTuples = (
+    tuples: PeopleControllerTuples,
+  ) => {  
+    this.peopleControllerTuples = tuples
   }
 
-  public pull = () => {
+  public push = () => {
     for (const peopleControllerTuple of this.peopleControllerTuples) {
       const physicsController : PhysicsController = peopleControllerTuple[1]
-      physicsController.setState("ATTRACTING")
+      physicsController.setState("REPULSING")
     }  
   }
 
@@ -147,6 +163,7 @@ export default class GrabObject extends PhysicsObject {
       this.rotateAroundPlanet()
       for (const tuple of this.peopleControllerTuples) {
         const physicsController : PhysicsController = tuple[1]
+        console.log('ticking');
         
         physicsController.tick()
       }

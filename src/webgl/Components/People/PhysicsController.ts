@@ -3,7 +3,8 @@ import AbstractObjectNoContext from "../../Abstract/AbstractObjectNoContext";
 import { Object3D, Vector3 } from "three";
 import PhysicsObject from "../PhysicsObject";
 import Planet from "../Planet";
-import GrabObject, { OnDeath, OnLanding } from "../GrabObject";
+import GrabObject from "../GrabObject";
+import LaunchObject, { OnDeath, OnLanding } from '../LaunchObject'
 import tuple from "../../../utils/types/tuple";
 import remap from "../../../utils/math/remap";
 import getViewport, { Viewport } from "../../../utils/webgl/viewport";
@@ -20,22 +21,23 @@ export default class PhysicsController extends PhysicsObject {
   private planets: Planet[]
   public peopleController: PeopleController
   public grabObject: GrabObject
+  public launchObject: LaunchObject
   public releasedCursorPosition = new Vector3()
   private state: PhysicsState = "ATTRACTING"
-  private onLanding: OnLanding
-  private onDeath: OnDeath
+  private onLanding: OnLanding | null
+  private onDeath: OnDeath | null
   private hasLanded = false
   private repulsedBeginningPosition = new Vector3()
   private lifespanLength : number
 
-  constructor(peopleController: PeopleController, currentPlanet: Planet, planets: Planet[], grabObject: GrabObject, viewport: Viewport, onLanding: OnLanding, onDeath: OnDeath, mass = 1) {
+  constructor(peopleController: PeopleController, currentPlanet: Planet, planets: Planet[], viewport: Viewport, grabObject?: GrabObject, onLanding?: OnLanding, onDeath?: OnDeath, mass = 1) {
     super(mass)
     this.currentPlanet = currentPlanet
     this.peopleController = peopleController
     this.planets = planets
-    this.grabObject = grabObject
-    this.onLanding = onLanding
-    this.onDeath = onDeath
+    if(grabObject) this.grabObject = grabObject
+    if(onLanding) this.onLanding = onLanding
+    if(onDeath) this.onDeath = onDeath
 
     this.lifespanLength = remap(Math.random(), [0, 1], [2, viewport.width/ 2.3])
 
@@ -43,6 +45,10 @@ export default class PhysicsController extends PhysicsObject {
     this.output.position.copy(peopleController.object.position)
     this.velocity.copy(peopleController.object.position)
   }
+
+  public setLaunchObject (object: LaunchObject){
+    this.launchObject = object
+  }   
 
   private repulse(origin: Vector3, target: Vector3) {
     temporaryVectors.target.copy(origin)
@@ -112,13 +118,13 @@ export default class PhysicsController extends PhysicsObject {
             const [attractToPlanetForce, stop] = this.attractToPlanet(this.planets[this.getClosestPlanetIndex()], this.output.position)
 
             if (stop) {
-              this.onLanding(this.currentPlanet, this.planets[this.getClosestPlanetIndex()], this, this.grabObject)
+              this.onLanding && this.onLanding(this.currentPlanet, this.planets[this.getClosestPlanetIndex()], this)
               this.hasLanded = true
               return
             }
 
             const distanceFromBeginning = this.output.position.distanceTo(this.repulsedBeginningPosition)
-            if(distanceFromBeginning > this.lifespanLength) this.onDeath(this)
+            if(distanceFromBeginning > this.lifespanLength) this.onDeath && this.onDeath(this)
 
             this.forces.set("attractToPlanet", attractToPlanetForce)
             const repulsion = this.repulse(this.output.position, this.releasedCursorPosition)
