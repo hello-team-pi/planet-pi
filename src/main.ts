@@ -77,7 +77,7 @@ globalState.__onChange(
 )
 
 // // "Dev mode"
-// setTimeout(start, 700)
+setTimeout(start, 700)
 
 const webgl = new WebGL(canvas, globalState, sounds)
 

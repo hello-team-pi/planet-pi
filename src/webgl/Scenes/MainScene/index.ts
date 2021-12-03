@@ -121,6 +121,8 @@ export default class MainScene extends AbstractObjectWithSize {
           ease: Cubic.easeOut,
         })
 
+        prop.grabObject.appear()
+
         this.orbit.target.copy(prop.position)
       },
       true,

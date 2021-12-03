@@ -19,11 +19,9 @@ export default class World extends AbstractObject<MainSceneContext> {
   private peopleMesh: PeopleMesh
   private planets: Planet[]
   private dead: DeadController[] = []
-  private grabObjects: GrabObject[] = []
   private controllerStock: PeopleController[] = []
   private nextIndex = 0
   private spritesheet = new SpritesheetParser(json)
-  private activeGrabObjectIndex = 0 //TODO: hlep
 
   constructor(context: MainSceneContext) {
     super(context)
@@ -36,10 +34,10 @@ export default class World extends AbstractObject<MainSceneContext> {
     for (const planet of this.planets) {
       alive += planet.peopleAmount
     }
-    for (const [controller] of this.grabObjects[this.activeGrabObjectIndex]
-      .peopleControllerTuples) {
-      if (controller) alive++
-    }
+    // for (const [controller] of this.grabObjects[this.activeGrabObjectIndex]
+    //   .peopleControllerTuples) {
+    //   if (controller) alive++
+    // }
 
     return alive
   }
@@ -88,58 +86,56 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
     this.output.add(this.peopleMesh.mesh)
 
-    const onProjectionDeath: OnDeath = (physicsController) => {
-      physicsController.grabObject.removePeopleControllerTuple(physicsController.index)
+    // const onProjectionDeath: OnDeath = (physicsController) => {
+    //   physicsController.grabObject.removePeopleControllerTuple(physicsController.index)
 
-      this.handleDeadFromPlanet(physicsController.peopleController, {
-        rotation: Math.random() * Math.PI * 2,
-      })
+    //   this.handleDeadFromPlanet(physicsController.peopleController, {
+    //     rotation: Math.random() * Math.PI * 2,
+    //   })
 
-      const alive = this.getAliveNumber()
+    //   const alive = this.getAliveNumber()
 
-      if (alive === 0)
-        setTimeout(() => {
-          this.context.globalState.step = "end"
-        }, 800)
-    }
+    //   if (alive === 0)
+    //     setTimeout(() => {
+    //       this.context.globalState.step = "end"
+    //     }, 800)
+    // }
 
-    const onLanding: OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
-      landedPlanet.addPeopleController(
-        physicsController.peopleController,
-        Math.random() * Math.PI * 2,
-      )
-      grabObject.removePeopleControllerTuple(physicsController.index)
+    // const onLanding: OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
+    //   landedPlanet.addPeopleController(
+    //     physicsController.peopleController,
+    //     Math.random() * Math.PI * 2,
+    //   )
+    //   grabObject.removePeopleControllerTuple(physicsController.index)
 
-      if (this.context.sceneState.currentPlanet !== landedPlanet) {
-        // /TODO: hlep
-        // First one has landed
+    //   if (this.context.sceneState.currentPlanet !== landedPlanet) {
+    //     // /TODO: hlep
+    //     // First one has landed
 
-        const newGrabObject = new GrabObject(
-          this.context,
-          landedPlanet,
-          70,
-          onLanding,
-          onProjectionDeath,
-        )
-        this.grabObjects.push(newGrabObject)
-        this.tickingObjects.push(newGrabObject)
-        this.output.add(newGrabObject.output)
-        this.activeGrabObjectIndex++
+    //     // const newGrabObject = new GrabObject(
+    //     //   this.context,
+    //     //   landedPlanet,
+    //     //   70,
+    //     //   onLanding,
+    //     //   onProjectionDeath,
+    //     // )
+    //     // this.grabObjects.push(newGrabObject)
+    //     // this.tickingObjects.push(newGrabObject)
+    //     // this.output.add(newGrabObject.output)
 
-        this.context.sceneState.currentPlanet = landedPlanet
-      }
-    }
-    const grabObject = new GrabObject(
-      this.context,
-      this.context.sceneState.currentPlanet,
-      70,
-      onLanding,
-      onProjectionDeath,
-    )
+    //     this.context.sceneState.currentPlanet = landedPlanet
+    //   }
+    // }
 
-    this.grabObjects.push(grabObject)
-    this.tickingObjects.push(grabObject)
-    this.output.add(grabObject.output)
+    // const grabObject = new GrabObject(
+    //   this.context,
+    //   this.context.sceneState.currentPlanet,
+    //   70,
+    // )
+
+    // this.grabObjects.push(grabObject)
+    // this.tickingObjects.push(grabObject)
+    // this.output.add(grabObject.output)
 
     this.setEvents()
   }
@@ -199,21 +195,18 @@ export default class World extends AbstractObject<MainSceneContext> {
   // Activer les grabobject [x]
   private onMouseDown = () => {
     const planet = this.context.sceneState.currentPlanet!
-    const controllers = Array.from(planet.peopleData.keys())
+    
+    planet.grabObject.setPhysicalPeopleControllers(this.planets)
 
-    for (const controller of controllers) {
-      planet.removePeopleController(controller)
-    }
+    planet.removeAllPeopleControllers()
 
-    this.grabObjects[this.activeGrabObjectIndex].setPhysicalPeopleControllers(
-      controllers,
-      this.planets,
-    )
+    planet.grabObject.pull()
   }
 
   private onMouseUp = () => {
-    this.grabObjects[this.activeGrabObjectIndex].repulsePhysicalPeopleControllers()
-    this.grabObjects[this.activeGrabObjectIndex].disappear()
+    // Launch here
+    // this.grabObjects[this.activeGrabObjectIndex].repulsePhysicalPeopleControllers()
+    // this.grabObjects[this.activeGrabObjectIndex].disappear()
   }
 
   setEvents() {
@@ -239,14 +232,15 @@ export default class World extends AbstractObject<MainSceneContext> {
     for (const dead of this.dead) {
       dead.tick(...params)
     }
-    for (const grabObject of this.grabObjects) {
-      for (const peopleController of grabObject.peopleControllerTuples) {
-        if (!peopleController[0]) continue //TODO: hlep
-        const physicsObject = peopleController[1]
-        physicsObject.tick(...params)
-      }
-      grabObject.tick()
-    }
+
+    // for (const grabObject of this.grabObjects) {
+    //   for (const peopleController of grabObject.peopleControllerTuples) {
+    //     if (!peopleController[0]) continue //TODO: hlep
+    //     const physicsObject = peopleController[1]
+    //     physicsObject.tick(...params)
+    //   }
+    //   grabObject.tick()
+    // }
     this.peopleMesh.mesh.instanceMatrix.needsUpdate = true
   }
 }

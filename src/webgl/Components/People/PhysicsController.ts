@@ -16,7 +16,6 @@ const temporaryVectors = {
 }
 
 export default class PhysicsController extends PhysicsObject {
-  public index: number
   private currentPlanet: Planet
   private planets: Planet[]
   public peopleController: PeopleController
@@ -29,9 +28,8 @@ export default class PhysicsController extends PhysicsObject {
   private repulsedBeginningPosition = new Vector3()
   private lifespanLength : number
 
-  constructor(index: number, peopleController: PeopleController, currentPlanet: Planet, planets: Planet[], grabObject: GrabObject, viewport: Viewport, onLanding: OnLanding, onDeath: OnDeath, mass = 1) {
+  constructor(peopleController: PeopleController, currentPlanet: Planet, planets: Planet[], grabObject: GrabObject, viewport: Viewport, onLanding: OnLanding, onDeath: OnDeath, mass = 1) {
     super(mass)
-    this.index = index
     this.currentPlanet = currentPlanet
     this.peopleController = peopleController
     this.planets = planets
@@ -96,9 +94,9 @@ export default class PhysicsController extends PhysicsObject {
     this.currentPlanet = planet
   }
 
-  public tick(time: number, delta: number) {
+  public tick() {
     if(this.hasLanded) return //TODO: hlep
-
+    
     this.peopleController.updatePeople((object) => {
       switch (this.state) {
         case "ATTRACTING":

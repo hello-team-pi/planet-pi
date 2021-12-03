@@ -16,6 +16,7 @@ import gsap from "gsap"
 
 import fragmentShader from "./anim.frag?raw"
 import vertexShader from "./anim.vert?raw"
+import GrabObject from "../GrabObject"
 
 type PeopleData = { rotation: number }
 
@@ -44,6 +45,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private backUI: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
   private animationQuad: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>
   private animator: Animator<"PLANET">
+  public grabObject: GrabObject
 
   private peoplesControllers: Set<PeopleController>
 
@@ -122,6 +124,12 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.lifespan = params.lifeSpan
     this.animator = new Animator(5, "PLANET")
     Planet.initGui(context, this)
+    this.grabObject = new GrabObject(
+      this.context,
+      this,
+      70,
+    )
+    this.context.scene.add(this.grabObject.output)
   }
 
   public get isDead(): boolean {
@@ -270,6 +278,13 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.peopleData.set(controller, { rotation: initRotation })
   }
 
+  public removeAllPeopleControllers(){
+    for (const controller of this.peoplesControllers) {
+      this.peoplesControllers.delete(controller)
+      this.peopleData.delete(controller)
+    }
+  }
+
   public removePeopleController(controller: PeopleController) {
     this.peoplesControllers.delete(controller)
     this.peopleData.delete(controller)
@@ -369,6 +384,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       }
       this.fluidMaterial.updateLifetime(this.lifetime)
     }
+
     this.timer += deltaTime
     this.setUI(this.peoplesControllers.size > 0 ? state : "none")
 
@@ -378,5 +394,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.animationQuad.material.uniforms.uUvOffset.value.copy(
       this.context.planetSpritesheetParser.getByName(this.animator.getFrame()),
     )
+
+    this.grabObject.tick()
   }
 }

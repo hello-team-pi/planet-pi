@@ -17,6 +17,7 @@ import PeopleController from "../People/PeopleController"
 import tuple from "../../../utils/types/tuple"
 import PhysicsController from "../People/PhysicsController"
 import getViewport, { Viewport } from "../../../utils/webgl/viewport"
+import gsap, {Cubic} from "gsap/all"
 
 export type OnLanding = (
   previousPlanet: Planet,
@@ -44,21 +45,18 @@ export default class GrabObject extends PhysicsObject {
   private viewport: Viewport
   private offsetRadius = 1.2
   private icon: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
+  public scaleScalar = 0.6
 
   constructor(
     context: MainSceneContext,
     originPlanet: Planet,
     mass = 1,
-    onLanding: OnLanding,
-    onDeath: OnDeath,
   ) {
     super(mass)
 
     this.cursor = new CursorController(context)
     this.currentPlanet = originPlanet
     this.cursor.setCurrentPlanet(this.currentPlanet)
-    this.onLanding = onLanding
-    this.onDeath = onDeath
     this.icon = new Mesh(
       new PlaneBufferGeometry(0.65, 1),
       new MeshBasicMaterial({ map: new TextureLoader().load(cursorImage), transparent: true }),
@@ -66,11 +64,13 @@ export default class GrabObject extends PhysicsObject {
     this.output = new Object3D()
     this.viewport = getViewport(context.camera)
 
-    this.icon.scale.setScalar(0.6)
+    this.icon.scale.setScalar(this.scaleScalar)
 
     this.output = new Object3D()
     this.output.add(this.icon)
     this.peopleControllerTuples = []
+
+    this.output.visible = false
 
     this.rotateAroundPlanet()
   }
@@ -95,17 +95,16 @@ export default class GrabObject extends PhysicsObject {
   }
 
   public setPhysicalPeopleControllers = (
-    peopleControllers: PeopleController[],
     planets: Planet[],
   ) => {
-    for (let index = 0; index < peopleControllers.length; index++) {
-      const peopleController = peopleControllers[index]
+    const controllers = this.currentPlanet.peopleData.keys()
+    for (const controller of controllers) {
+      
       this.peopleControllerTuples.push(
         tuple(
-          peopleController,
+          controller,
           new PhysicsController(
-            index,
-            peopleController,
+            controller,
             this.currentPlanet,
             planets,
             this,
@@ -118,14 +117,21 @@ export default class GrabObject extends PhysicsObject {
     }
   }
 
-  public repulsePhysicalPeopleControllers() {
-    for (const peopleController of this.peopleControllerTuples) {
-      const physicsController = peopleController[1]
-      if (!physicsController) return
-      physicsController.setReleasedCursorPosition(this.cursor.cursorPos)
-      physicsController.setState("REPULSING")
-    }
+  public pull = () => {
+    for (const peopleControllerTuple of this.peopleControllerTuples) {
+      const physicsController : PhysicsController = peopleControllerTuple[1]
+      physicsController.setState("ATTRACTING")
+    }  
   }
+
+  // public repulsePhysicalPeopleControllers() {
+  //   for (const peopleController of this.peopleControllerTuples) {
+  //     const physicsController = peopleController[1]
+  //     if (!physicsController) return
+  //     physicsController.setReleasedCursorPosition(this.cursor.cursorPos)
+  //     physicsController.setState("REPULSING")
+  //   }
+  // }
 
   public clearPeopleControllerTuples() {
     this.peopleControllerTuples = []
@@ -135,13 +141,27 @@ export default class GrabObject extends PhysicsObject {
     this.peopleControllerTuples[index] = tuple(null, null)
   }
 
-  // /TODO: hlep
   public disappear() {
-    this.icon.scale.setScalar(0)
-    this.hasDisappeared = true
+    gsap.to(this.icon.scale, {x: 0, y: 0, z: 0, duration: 0.5, ease: Cubic.easeInOut, onComplete: ()=>{
+      this.output.visible = false
+    }})
+  }
+
+  public appear(){
+    gsap.to(this.icon.scale, {x: this.scaleScalar, y: this.scaleScalar, z: this.scaleScalar, duration: 0.5, ease: Cubic.easeInOut, onStart: ()=>{
+      this.output.visible = true
+    }})
   }
 
   public tick() {
-    if (!this.hasDisappeared) this.rotateAroundPlanet()
+    if (this.output.visible) {
+      this.rotateAroundPlanet()
+      for (const tuple of this.peopleControllerTuples) {
+        const physicsController : PhysicsController = tuple[1]
+        console.log('ticking');
+        
+        physicsController.tick()
+      }
+    }
   }
 }
