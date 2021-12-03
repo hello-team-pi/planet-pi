@@ -10,6 +10,7 @@ attribute vec3 position;
 attribute vec3 normal;
 
 uniform sampler2D uGradient;
+uniform float uShake;
 varying vec3 vPosition;
 varying vec3 vWorldPosition;
 varying vec3 vWorldNormal;
@@ -24,5 +25,5 @@ void main(void) {
   vFirstColor = texture2D(uGradient, vec2(0., 0.5)).xyz;
   vLastColor = texture2D(uGradient, vec2(1., 0.5)).xyz;
     
-  gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position + vec3(uShake, 0., 0.), 1.0);
 }

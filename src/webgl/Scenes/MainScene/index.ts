@@ -15,7 +15,7 @@ import greenGradient from "../../../assets/images/gradients/green_gradient.png"
 import purpleGradient from "../../../assets/images/gradients/purple_gradient.png"
 import planetModel from "../../../assets/models/planet_4.gltf"
 
-import gsap, { Cubic } from 'gsap'
+import gsap, { Cubic } from "gsap"
 
 export default class MainScene extends AbstractObjectWithSize {
   public scene: THREE.Scene
@@ -102,7 +102,12 @@ export default class MainScene extends AbstractObjectWithSize {
           this.camera.position.y = prop.position.y
         }
 
-        gsap.to(this.camera.position, { x: prop.position.x, y: prop.position.y, duration: 1, ease: Cubic.easeInOut })
+        gsap.to(this.camera.position, {
+          x: prop.position.x,
+          y: prop.position.y,
+          duration: 0.5,
+          ease: Cubic.easeOut,
+        })
 
         this.orbit.target.copy(prop.position)
       },
