@@ -12,7 +12,7 @@ export default class CursorController extends AbstractObjectWithSize<MainSceneCo
   constructor(context: MainSceneContext) {
     super(context)
 
-    window.addEventListener("mousemove", this.handleMouseMove)
+    window.addEventListener("pointermove", this.handleMouseMove)
   }
 
   setCurrentPlanet(planet: Planet) {
@@ -33,7 +33,6 @@ export default class CursorController extends AbstractObjectWithSize<MainSceneCo
     raycaster.setFromCamera(mouse, this.context.camera)
     raycaster.ray.intersectPlane(plane, this.cursorPos)
   }
-
 
   // Not used for now
   private handleDrag = (e: MouseEvent) => {
@@ -60,6 +59,6 @@ export default class CursorController extends AbstractObjectWithSize<MainSceneCo
 
   public destroy() {
     super.destroy()
-    window.removeEventListener("mouseover", this.handleMouseMove)
+    window.removeEventListener("pointermove", this.handleMouseMove)
   }
 }
