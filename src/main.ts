@@ -6,6 +6,7 @@ import { Howl } from "howler"
 import uiSoundUrl from "./assets/sounds/ui/ui.mp3"
 import ambiantSoundUrl from "./assets/sounds/ambiant/espace.mp3"
 import planetWarningSoundUrl from "./assets/sounds/planets/alerte.mp3"
+import planetExplosionSoundUrl from "./assets/sounds/planets/explosion.mp3"
 
 const canvas = document.querySelector<HTMLCanvasElement>("#webgl")!
 
@@ -17,6 +18,7 @@ const sounds = {
   ui: new Howl({ src: [uiSoundUrl] }),
   ambiant: new Howl({ src: [ambiantSoundUrl], loop: true, volume: 0.2 }),
   planetWarning: new Howl({ src: [planetWarningSoundUrl], volume: 0.3 }),
+  planetExplosion: new Howl({ src: [planetExplosionSoundUrl], volume: 0.3 }),
 }
 
 export type Sounds = typeof sounds

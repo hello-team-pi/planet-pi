@@ -217,7 +217,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       this.uiState === "danger" &&
       this.context.sounds.planetWarning.playing()
     )
-      this.context.sounds.planetWarning.stop()
+      setTimeout(() => this.context.sounds.planetWarning.stop(), 200)
     if (state === "danger" && !this.context.sounds.planetWarning.playing())
       this.context.sounds.planetWarning.play()
     if (this.uiState === state) return
@@ -328,6 +328,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       if (this.lifetime >= 1 && lastLifeTime < 1) {
         this.killAll()
         this.planetDiedCb()
+        this.context.sounds.planetExplosion.play()
       }
       this.fluidMaterial.updateLifetime(this.lifetime)
     }
