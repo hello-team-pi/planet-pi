@@ -143,7 +143,8 @@ export default class World extends AbstractObject<MainSceneContext> {
     this.grabObjects.push(grabObject)
     this.tickingObjects.push(grabObject)
     this.output.add(grabObject.output)
-    this.context.globalState.__onChange("isIntro", () => this.setEvents())
+    // this.context.globalState.__onChange("isIntro", () => this.setEvents())
+    this.setEvents()
   }
 
   private queryController() {

@@ -29,7 +29,7 @@ const globalState = observableState<{
   step: "start",
   deadPeople: 0,
   deadPlanet: 0,
-  isIntro: true,
+  isIntro: false,
 })
 
 const sounds = {
