@@ -3,6 +3,7 @@ import fragmentShader from "./index.frag?raw"
 import vertexShader from "./index.vert?raw"
 import spritesheetImage from "../../../../assets/spritesheets/spritesheet.png"
 import { MainSceneContext } from "../../../Scenes/MainScene"
+import remap from "../../../../utils/math/remap"
 
 type PeopleColors = {
   head: string
@@ -88,6 +89,34 @@ export default class PeopleMesh {
       uvOffsets[index * 4 + 3] = 0.2
     }
     geometry.setAttribute("aUvOffset", new THREE.InstancedBufferAttribute(uvOffsets, 4))
+
+    const rotationMatrices = new Float32Array(this.maxAmount * 16)
+    const obj = new THREE.Object3D()
+    for (let index = 0; index < this.maxAmount; index++) {
+      obj.rotation.y = remap(Math.random(), [0, 1], [-0.6, 0.6])
+      obj.updateMatrix()
+      const arr = obj.matrix.toArray()
+      rotationMatrices[index * 16 + 0] = arr[0]
+      rotationMatrices[index * 16 + 1] = arr[1]
+      rotationMatrices[index * 16 + 2] = arr[2]
+      rotationMatrices[index * 16 + 3] = arr[3]
+      rotationMatrices[index * 16 + 4] = arr[4]
+      rotationMatrices[index * 16 + 5] = arr[5]
+      rotationMatrices[index * 16 + 6] = arr[6]
+      rotationMatrices[index * 16 + 7] = arr[7]
+      rotationMatrices[index * 16 + 8] = arr[8]
+      rotationMatrices[index * 16 + 9] = arr[9]
+      rotationMatrices[index * 16 + 10] = arr[10]
+      rotationMatrices[index * 16 + 11] = arr[11]
+      rotationMatrices[index * 16 + 12] = arr[12]
+      rotationMatrices[index * 16 + 13] = arr[13]
+      rotationMatrices[index * 16 + 14] = arr[14]
+      rotationMatrices[index * 16 + 15] = arr[15]
+    }
+    geometry.setAttribute(
+      "aRotationMatrix",
+      new THREE.InstancedBufferAttribute(rotationMatrices, 16),
+    )
     return geometry
   }
 }

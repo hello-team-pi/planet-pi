@@ -7,6 +7,7 @@ uniform vec3 uDeadColor;
 varying float vIsDead;
 varying vec2 vUv;
 varying vec4 vUvOffset;
+varying float vLight;
 
 float map(float value, float min1, float max1, float min2, float max2) {
   return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
@@ -22,6 +23,6 @@ void main() {
   color = mix(color, uMouthColor, texel.b);
   color = color * mix(vec3(1.), uDeadColor, vIsDead);
 
-  gl_FragColor = vec4(color, texel.a);
+  gl_FragColor = vec4(color * vLight, texel.a);
   if (gl_FragColor.a < 0.9) discard;
 }
