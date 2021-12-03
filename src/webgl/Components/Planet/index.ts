@@ -329,7 +329,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
           state = "overpopulation"
         } else if (
           Math.random() <
-          remap(closeNeighbour, [0, Planet.spawnParams.neighbourLimit], [0.02, 0.0001])
+            remap(closeNeighbour, [0, Planet.spawnParams.neighbourLimit], [0.02, 0.0001]) &&
+          !this.context.globalState.isIntro
         )
           this.spawnCb(this, this.peopleData.get(controller)!)
 
@@ -337,7 +338,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       })
     }
 
-    if (this.isDying) {
+    if (this.isDying && !this.context.globalState.isIntro) {
       const lastLifeTime = this.lifetime
       this.lifetime = Math.min(this.lifetime + deltaTime / this.lifespan, 1)
       if (!this.isDead)

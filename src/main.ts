@@ -20,10 +20,16 @@ const canvas = document.querySelector<HTMLCanvasElement>("#webgl")!
 
 type GameStep = "start" | "game" | "end"
 
-const globalState = observableState<{ step: GameStep; deadPeople: number; deadPlanet: number }>({
+const globalState = observableState<{
+  step: GameStep
+  deadPeople: number
+  deadPlanet: number
+  isIntro: boolean
+}>({
   step: "start",
   deadPeople: 0,
   deadPlanet: 0,
+  isIntro: true,
 })
 
 const sounds = {
@@ -99,6 +105,14 @@ endButton.addEventListener("click", end)
 document.addEventListener("keypress", (e) => {
   if ((e.key === " " || e.key === "Enter") && globalState.step === "start") start()
 })
+
+globalState.__onChange(
+  "isIntro",
+  (isIntro) => {
+    if (!isIntro) intro.style.display = "none"
+  },
+  true,
+)
 
 globalState.__onChange(
   "step",
