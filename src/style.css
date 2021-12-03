@@ -227,7 +227,7 @@ li {
 
 /* Dev mode */
 .tp-dfwv {
-  /* display: none; */
+  display: none;
 }
 
 canvas:not(#webgl) {

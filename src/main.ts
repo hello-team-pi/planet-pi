@@ -142,7 +142,7 @@ globalState.__onChange(
 const webgl = new WebGL(canvas, globalState, sounds)
 
 const stats = new Stats()
-document.body.appendChild(stats.dom)
+// document.body.appendChild(stats.dom)
 
 const raf = () => {
   stats.begin()
