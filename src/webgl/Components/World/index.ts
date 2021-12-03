@@ -248,5 +248,6 @@ export default class World extends AbstractObject<MainSceneContext> {
       grabObject.tick()
     }
     this.peopleMesh.mesh.instanceMatrix.needsUpdate = true
+    this.peopleMesh.mesh.geometry.attributes["aIsDead"].needsUpdate = true
   }
 }

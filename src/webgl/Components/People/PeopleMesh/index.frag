@@ -2,7 +2,9 @@ uniform sampler2D uTexture;
 uniform vec3 uBodyColor;
 uniform vec3 uHeadColor;
 uniform vec3 uMouthColor;
+uniform vec3 uDeadColor;
 
+varying float vIsDead;
 varying vec2 vUv;
 varying vec4 vUvOffset;
 
@@ -18,6 +20,7 @@ void main() {
   vec3 color = uBodyColor;
   color = mix(color, uHeadColor, texel.r);
   color = mix(color, uMouthColor, texel.b);
+  color = color * mix(vec3(1.), uDeadColor, vIsDead);
 
   gl_FragColor = vec4(color, texel.a);
   if (gl_FragColor.a < 0.9) discard;

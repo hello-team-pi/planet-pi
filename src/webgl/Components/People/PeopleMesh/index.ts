@@ -8,6 +8,7 @@ type PeopleColors = {
   head: string
   body: string
   mouth: string
+  dead: string
 }
 
 export default class PeopleMesh {
@@ -21,7 +22,7 @@ export default class PeopleMesh {
   constructor(
     maxAmount: number,
     context: MainSceneContext,
-    theme: PeopleColors = { body: "#ebebeb", head: "#d9d9d9", mouth: "#373431" },
+    theme: PeopleColors = { body: "#ebebeb", head: "#d9d9d9", mouth: "#373431", dead: "#b5e7ff" },
   ) {
     this.theme = theme
     this.context = context
@@ -35,6 +36,7 @@ export default class PeopleMesh {
         uBodyColor: { value: new THREE.Color(this.theme.body) },
         uHeadColor: { value: new THREE.Color(this.theme.head) },
         uMouthColor: { value: new THREE.Color(this.theme.mouth) },
+        uDeadColor: { value: new THREE.Color(this.theme.dead) },
       },
     })
 
@@ -54,6 +56,9 @@ export default class PeopleMesh {
     folder
       .addInput(this.theme, "mouth")
       .on("change", ({ value }) => this.material.uniforms.uMouthColor.value.set(value))
+    folder
+      .addInput(this.theme, "dead")
+      .on("change", ({ value }) => this.material.uniforms.uDeadColor.value.set(value))
   }
 
   private genGeometry() {
@@ -71,6 +76,8 @@ export default class PeopleMesh {
     const index = new Float32Array(this.maxAmount)
     for (let i = 0; i < this.maxAmount; i++) index[i] = i
     geometry.setAttribute("aIndex", new THREE.InstancedBufferAttribute(index, 1, false))
+    const isDead = new Float32Array(new Array(this.maxAmount).fill(0))
+    geometry.setAttribute("aIsDead", new THREE.InstancedBufferAttribute(isDead, 1, false))
 
     // UV offsets
     const uvOffsets = new Float32Array(this.maxAmount * 4)

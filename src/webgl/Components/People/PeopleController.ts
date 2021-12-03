@@ -64,6 +64,8 @@ export default class PeopleController {
     const anim = transform(this.object)
     if (anim) this.animator.setAnimation(anim)
 
+    this.mesh.geometry.attributes["aIsDead"].setX(this.index, anim === "dead" ? 1 : 0)
+
     this.object.updateMatrix()
     this.mesh.setMatrixAt(this.index, this.object.matrix)
     this.updateAnim()
