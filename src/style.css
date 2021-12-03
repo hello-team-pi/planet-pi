@@ -103,6 +103,8 @@ body {
 }
 
 .button {
+  font-family: "Lexend Giga", sans-serif;
+
   text-transform: uppercase;
   background-color: var(--red);
   border: none;
