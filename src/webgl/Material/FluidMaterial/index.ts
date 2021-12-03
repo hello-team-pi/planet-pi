@@ -21,6 +21,7 @@ export default class FluidMaterial {
   private params: FluidParams
   private effectiveSpeed: number
   private uniforms: Record<string, THREE.IUniform>
+  private isShaky = false
 
   public material: THREE.RawShaderMaterial
 
@@ -57,6 +58,7 @@ export default class FluidMaterial {
       uNoiseStrength: { value: this.params.noiseStrength },
       uLoopCount: { value: this.params.loopCount },
       uDesaturate: { value: 0 },
+      uShake: { value: 0 },
     }
 
     this.material = new THREE.RawShaderMaterial({
@@ -94,7 +96,13 @@ export default class FluidMaterial {
     this.effectiveSpeed = Easing.Circular.Out(1 - lifetime) * this.params.speed
   }
 
+  public setIsShaky(value: boolean) {
+    this.isShaky = value
+    this.uniforms.uShake.value = 0
+  }
+
   public tick(time: number, delta: number) {
+    if (this.isShaky) this.uniforms.uShake.value = Math.sin(time * 60) * 0.05
     this.uniforms.uTime.value += delta * this.effectiveSpeed
   }
 }

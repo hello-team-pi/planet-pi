@@ -12,7 +12,11 @@ const canvas = document.querySelector<HTMLCanvasElement>("#webgl")!
 
 type GameStep = "start" | "game" | "end"
 
-const globalState = observableState<{ step: GameStep }>({ step: "start" })
+const globalState = observableState<{ step: GameStep; deadPeople: number; deadPlanet: number }>({
+  step: "start",
+  deadPeople: 0,
+  deadPlanet: 0,
+})
 
 const sounds = {
   ui: new Howl({ src: [uiSoundUrl] }),
@@ -28,6 +32,8 @@ const mainMenu = document.querySelector<HTMLElement>("#mainMenu")!
 const hud = document.querySelector<HTMLElement>("#hud")!
 const endScreen = document.querySelector<HTMLElement>('#endScreen')!
 const startButton = mainMenu.querySelector<HTMLButtonElement>(".button")!
+const peopleCounter = hud.querySelector<HTMLElement>("#peoples")!
+const planetCounter = hud.querySelector<HTMLElement>("#planets")!
 
 const start = () => {
   globalState.step = "game"
@@ -42,6 +48,21 @@ globalState.__onChange(
     mainMenu.style.display = step !== "start" ? "none" : "flex"
     hud.style.display = step === "start" ? "none" : "none"  
     endScreen.style.display = step !== "end" ? "none" : "flex"
+  },
+  true,
+)
+
+globalState.__onChange(
+  "deadPeople",
+  (v) => {
+    peopleCounter.innerText = v.toString().padStart(4, "0")
+  },
+  true,
+)
+globalState.__onChange(
+  "deadPlanet",
+  (v) => {
+    planetCounter.innerText = v.toString().padStart(2, "0")
   },
   true,
 )

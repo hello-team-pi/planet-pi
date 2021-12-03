@@ -67,11 +67,13 @@ body {
   margin: 0.5rem 0;
 }
 
-#people {
+#peoples {
   width: 190px;
+  text-align: right;
 }
 #planets {
   width: 95px;
+  text-align: right;
 }
 
 .intro {
