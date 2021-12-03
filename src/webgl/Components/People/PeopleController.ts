@@ -1,11 +1,11 @@
 import * as THREE from "three"
-import Animator, { Animation } from "../Animator"
+import Animator from "../Animator"
 import SpritesheetParser from "../SpritesheetParser"
 
 export default class PeopleController {
   public object: THREE.Object3D
   private mesh: THREE.InstancedMesh
-  private animator: Animator
+  private animator: Animator<"PEOPLE">
   private spritesheet: SpritesheetParser
   private index: number
 
@@ -35,7 +35,7 @@ export default class PeopleController {
     this.index = index
     this.mesh = mesh
     this.object = new THREE.Object3D()
-    this.animator = new Animator(5)
+    this.animator = new Animator(5, "PEOPLE")
     this.spritesheet = spritesheet
     this.animator.setAnimation("spawn", () => this.animator.setAnimation("alive"))
     // this.planetPosition = { ...startPlanetPos }
@@ -56,7 +56,11 @@ export default class PeopleController {
     this.mesh.geometry.attributes["aUvOffset"].needsUpdate = true
   }
 
-  public updatePeople(transform: (object: THREE.Object3D) => void | Animation) {
+  public updatePeople(
+    transform: (
+      object: THREE.Object3D,
+    ) => void | Parameters<PeopleController["animator"]["setAnimation"]>[0],
+  ) {
     const anim = transform(this.object)
     if (anim) this.animator.setAnimation(anim)
 

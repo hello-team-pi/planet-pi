@@ -10,12 +10,15 @@ import World from "../../Components/World"
 import observableState from "../../../utils/observableState"
 
 import spritesheet from "../../../assets/spritesheets/spritesheet.png"
+import planetSpritesheet from "../../../assets/spritesheets/explosion_spritesheet.png"
+import planetSpritesheetJSON from "../../../assets/spritesheets/explosion_spritesheet.json"
 import blueGradient from "../../../assets/images/gradients/blue_gradient.png"
 import greenGradient from "../../../assets/images/gradients/green_gradient.png"
 import purpleGradient from "../../../assets/images/gradients/purple_gradient.png"
 import planetModel from "../../../assets/models/planet_4.gltf"
 
 import gsap, { Cubic } from "gsap"
+import SpritesheetParser from "../../Components/SpritesheetParser"
 
 export default class MainScene extends AbstractObjectWithSize {
   public scene: THREE.Scene
@@ -23,7 +26,8 @@ export default class MainScene extends AbstractObjectWithSize {
 
   private orbit: OrbitControls
   private assets: {
-    spritesheet: THREE.Texture
+    peopleSpritesheet: THREE.Texture
+    planetSpritesheet: THREE.Texture
     blueGradient: THREE.Texture
     greenGradient: THREE.Texture
     purpleGradient: THREE.Texture
@@ -36,6 +40,7 @@ export default class MainScene extends AbstractObjectWithSize {
 
   private tickingObjects: AbstractObject[] = []
   private world : World
+  private planetSpritesheetParser = new SpritesheetParser(planetSpritesheetJSON)
 
   constructor(context: WebGLAppContext) {
     super(context)
@@ -47,7 +52,8 @@ export default class MainScene extends AbstractObjectWithSize {
       blueGradient: textureLoader.load(blueGradient),
       greenGradient: textureLoader.load(greenGradient),
       purpleGradient: textureLoader.load(purpleGradient),
-      spritesheet: textureLoader.load(spritesheet),
+      peopleSpritesheet: textureLoader.load(spritesheet),
+      planetSpritesheet: textureLoader.load(planetSpritesheet),
       planetGeometry: null,
     }
     gltfLoader.load(planetModel, (gltf: GLTF) => {
@@ -76,6 +82,7 @@ export default class MainScene extends AbstractObjectWithSize {
     scene: this.scene,
     assets: this.assets,
     sceneState: this.state,
+    planetSpritesheetParser: this.planetSpritesheetParser,
   })
 
   protected onResize(width: number, height: number) {

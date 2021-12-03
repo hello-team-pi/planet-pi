@@ -11,6 +11,11 @@ import dangerBackUi from "../../../assets/images/ui/hud_quit_planet.png"
 import overpopulationBackUi from "../../../assets/images/ui/hud_overpopulation.png"
 import dangerFrontUi from "../../../assets/images/ui/ico-eject.png"
 import overpopulationFrontUi from "../../../assets/images/ui/ico-attention.png"
+import Animator from "../Animator"
+import gsap from "gsap"
+
+import fragmentShader from "./anim.frag?raw"
+import vertexShader from "./anim.vert?raw"
 
 type PeopleData = { rotation: number }
 
@@ -37,6 +42,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private planetMesh: THREE.Mesh
   private frontUI: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
   private backUI: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
+  private animationQuad: THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>
+  private animator: Animator<"PLANET">
 
   private peoplesControllers: Set<PeopleController>
   private peopleDiedCb: PlanetParams["onPeopleDie"]
@@ -108,6 +115,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.planetDiedCb = params.onPlanetDie || (() => {})
     this.spawnCb = params.onSpawn || (() => {})
     this.lifespan = params.lifeSpan
+    this.animator = new Animator(5, "PLANET")
     Planet.initGui(context, this)
   }
 
@@ -201,9 +209,23 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.frontUI.visible = false
     this.frontUI.position.y = 0.2
 
+    this.animationQuad = new THREE.Mesh(
+      new THREE.PlaneGeometry(8, 8),
+      new THREE.ShaderMaterial({
+        fragmentShader,
+        vertexShader,
+        uniforms: {
+          uTexture: { value: this.context.assets.planetSpritesheet },
+          uUvOffset: { value: new THREE.Vector4(0, 0, 0, 0) },
+        },
+      }),
+    )
+    this.animationQuad.position.z = -0.1
+
     this.output = new THREE.Object3D()
     this.output.position.fromArray(position)
-    this.output.add(this.planetMesh, this.frontUI, this.backUI)
+    this.output.add(this.planetMesh, this.frontUI, this.backUI, this.animationQuad)
+
     this.radius = radius
     this.startRadius = radius
   }
@@ -321,11 +343,12 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     if (this.isDying) {
       const lastLifeTime = this.lifetime
       this.lifetime = Math.min(this.lifetime + deltaTime / this.lifespan, 1)
-      this.radius = remap(
-        Easing.Quadratic.Out(this.lifetime),
-        [0, 1],
-        [this.startRadius, this.startRadius * 0.6],
-      )
+      if (!this.isDead)
+        this.radius = remap(
+          Easing.Quadratic.Out(this.lifetime),
+          [0, 1],
+          [this.startRadius, this.startRadius * 0.6],
+        )
       if (this.lifespan - this.lifetime * this.lifespan < 3 && lastLifeTime < 1)
         this.fluidMaterial.setIsShaky(true)
       if (this.lifespan - this.lifetime * this.lifespan < 5 && this.peoplesControllers.size > 0)
@@ -335,6 +358,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
         this.killAll()
         this.planetDiedCb()
         this.context.sounds.planetExplosion.play()
+        this.animator.setAnimation("explosion", () => this.animator.setAnimation("none"))
+        gsap.to(this, { radius: 0 })
         this.fluidMaterial.setIsShaky(false)
       }
       this.fluidMaterial.updateLifetime(this.lifetime)
@@ -343,5 +368,10 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.setUI(this.peoplesControllers.size > 0 ? state : "none")
 
     this.fluidMaterial.tick(time, deltaTime)
+    this.animationQuad.visible = this.animator.currentAnimation !== "none"
+    this.animator.tick()
+    this.animationQuad.material.uniforms.uUvOffset.value.copy(
+      this.context.planetSpritesheetParser.getByName(this.animator.getFrame()),
+    )
   }
 }

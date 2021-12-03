@@ -43,7 +43,7 @@ export default class World extends AbstractObject<MainSceneContext> {
         position: newPos,
         radius: remap(Math.random(), [0, 1], [1.5, 3]),
         type: planetTypes[Math.floor(Math.random() * planetTypes.length)],
-        lifeSpan: remap(Math.random(), [0, 1], [10, 30]),
+        lifeSpan: remap(Math.random(), [0, 1], [10, 10]),
         onPlanetDie: () => this.context.globalState.deadPlanet++,
         onPeopleDie: this.handleDeadFromPlanet,
         onSpawn: this.handleSpawn,
