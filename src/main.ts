@@ -87,6 +87,10 @@ const end = () => {
 }
 endButton.addEventListener("click", end)
 
+document.addEventListener("keypress", (e) => {
+  if ((e.key === " " || e.key === "Enter") && globalState.step === "start") start()
+})
+
 globalState.__onChange(
   "step",
   (step, previousStep) => {
