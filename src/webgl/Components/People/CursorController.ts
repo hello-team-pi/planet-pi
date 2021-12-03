@@ -12,7 +12,7 @@ export default class CursorController extends AbstractObjectWithSize<MainSceneCo
   constructor(context: MainSceneContext) {
     super(context)
 
-    this.context.renderer.domElement.addEventListener("mousemove", this.handleMouseMove)
+    window.addEventListener("mousemove", this.handleMouseMove)
   }
 
   setCurrentPlanet(planet: Planet) {
@@ -60,6 +60,6 @@ export default class CursorController extends AbstractObjectWithSize<MainSceneCo
 
   public destroy() {
     super.destroy()
-    this.context.renderer.domElement.removeEventListener("mouseover", this.handleMouseMove)
+    window.removeEventListener("mouseover", this.handleMouseMove)
   }
 }
