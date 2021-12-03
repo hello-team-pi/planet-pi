@@ -347,9 +347,9 @@ export default class Planet extends AbstractObject<MainSceneContext> {
           [0, 1],
           [this.startRadius, this.startRadius * 0.6],
         )
-      if (this.lifespan - this.lifetime * this.lifespan < 3 && lastLifeTime < 1)
+      if (this.lifespan - this.lifetime * this.lifespan < 2 && lastLifeTime < 1)
         this.fluidMaterial.setIsShaky(true)
-      if (this.lifespan - this.lifetime * this.lifespan < 5 && !this.isDead) {
+      if (this.lifespan - this.lifetime * this.lifespan < 2 && !this.isDead) {
         state = "danger"
         if (
           this.context.sceneState.currentPlanet === this &&
