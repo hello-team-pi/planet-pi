@@ -10,7 +10,7 @@ import planetExplosionSoundUrl from "./assets/sounds/planets/explosion.mp3"
 
 const canvas = document.querySelector<HTMLCanvasElement>("#webgl")!
 
-type GameStep = "start" | "game"
+type GameStep = "start" | "game" | "end"
 
 const globalState = observableState<{ step: GameStep }>({ step: "start" })
 
@@ -26,6 +26,7 @@ export type GlobalState = typeof globalState
 
 const mainMenu = document.querySelector<HTMLElement>("#mainMenu")!
 const hud = document.querySelector<HTMLElement>("#hud")!
+const endScreen = document.querySelector<HTMLElement>('#endScreen')!
 const startButton = mainMenu.querySelector<HTMLButtonElement>(".button")!
 
 const start = () => {
@@ -39,7 +40,8 @@ globalState.__onChange(
   "step",
   (step) => {
     mainMenu.style.display = step !== "start" ? "none" : "flex"
-    hud.style.display = step === "start" ? "none" : "flex"
+    hud.style.display = step === "start" ? "none" : "none"  
+    endScreen.style.display = step !== "end" ? "none" : "flex"
   },
   true,
 )
