@@ -239,14 +239,6 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     const visible = state !== "none" && Math.floor(this.timer * 3) % 2 === 0
     this.frontUI.visible = visible
     this.backUI.visible = visible
-    if (
-      state !== "danger" &&
-      this.uiState === "danger" &&
-      this.context.sounds.planetWarning.playing()
-    )
-      setTimeout(() => this.context.sounds.planetWarning.stop(), 200)
-    if (state === "danger" && !this.context.sounds.planetWarning.playing())
-      this.context.sounds.planetWarning.play()
     if (this.uiState === state) return
     this.timer = 0
     if (state === "none") return
@@ -356,8 +348,14 @@ export default class Planet extends AbstractObject<MainSceneContext> {
         )
       if (this.lifespan - this.lifetime * this.lifespan < 3 && lastLifeTime < 1)
         this.fluidMaterial.setIsShaky(true)
-      if (this.lifespan - this.lifetime * this.lifespan < 5 && this.peoplesControllers.size > 0)
+      if (this.lifespan - this.lifetime * this.lifespan < 5 && !this.isDead) {
         state = "danger"
+        if (
+          this.context.sceneState.currentPlanet === this &&
+          !this.context.sounds.planetWarning.playing()
+        )
+          this.context.sounds.planetWarning.play()
+      }
       if (this.lifetime >= 1) state = "none"
       if (this.lifetime >= 1 && lastLifeTime < 1) {
         this.killAll()
@@ -370,7 +368,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       this.fluidMaterial.updateLifetime(this.lifetime)
     }
     this.timer += deltaTime
-    this.setUI(this.peoplesControllers.size > 0 ? state : "none")
+    this.setUI(this.context.sceneState.currentPlanet === this ? state : "none")
 
     this.fluidMaterial.tick(time, deltaTime)
     this.animationQuad.visible = this.animator.currentAnimation !== "none"

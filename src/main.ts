@@ -12,6 +12,7 @@ import propulsionLoop from "./assets/sounds/propulsion/charge_loop.mp3"
 import propulsionImpact from "./assets/sounds/propulsion/impact.mp3"
 import launch from "./assets/sounds/propulsion/launch.mp3"
 import endGameSound from "./assets/sounds/game_over/game_over.mp3"
+import musicUrl from "./assets/sounds/music/planete_loop.mp3"
 import aliens from "./assets/aliens.json"
 import planets from "./assets/planets.json"
 
@@ -29,12 +30,13 @@ const sounds = {
   ui: new Howl({ src: [uiSoundUrl] }),
   ambiant: new Howl({ src: [ambiantSoundUrl], loop: true, volume: 0.2 }),
   endGame: new Howl({ src: [endGameSound] }),
-  planetWarning: new Howl({ src: [planetWarningSoundUrl], volume: 0.2 }),
+  planetWarning: new Howl({ src: [planetWarningSoundUrl], volume: 0.1 }),
   planetExplosion: new Howl({ src: [planetExplosionSoundUrl], volume: 0.2 }),
   propulsionChargeBuildUp: new Howl({ src: [propulsionChargeBuildUp], volume: 0.3 }),
   propulsionLoop: new Howl({ loop: true, src: [propulsionLoop], volume: 0.1 }),
   propulsionImpact: new Howl({ src: [propulsionImpact], volume: 0.1 }),
   launch: new Howl({ src: [launch], volume: 0.2 }),
+  music: new Howl({ src: [musicUrl], loop: true, volume: 0.05 }),
 }
 
 export type Sounds = typeof sounds
@@ -85,8 +87,6 @@ const addEntry = (d: { name: string; planet: number; people: number }) => {
 
 const start = () => {
   globalState.step = "game"
-  sounds.ui.play()
-  sounds.ambiant.play()
 }
 startButton.addEventListener("click", start)
 
@@ -106,6 +106,8 @@ globalState.__onChange(
     hud.style.display = step === "game" ? "flex" : "none"
     endScreen.style.display = step !== "end" ? "none" : "flex"
     if (step === "end" && previousStep !== "end") {
+      sounds.music.stop()
+
       sounds.endGame.play()
       scoreboardPeople.innerText = globalState.deadPeople.toString()
       scoreboardPlanet.innerText = globalState.deadPlanet.toString()
@@ -124,6 +126,10 @@ globalState.__onChange(
     if (step === "game") {
       species.innerText = alienName
       planet.innerText = planetName
+
+      sounds.music.play()
+      sounds.ui.play()
+      sounds.ambiant.play()
     }
   },
   true,
