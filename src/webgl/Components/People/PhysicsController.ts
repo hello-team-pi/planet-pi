@@ -3,8 +3,10 @@ import AbstractObjectNoContext from "../../Abstract/AbstractObjectNoContext";
 import { Object3D, Vector3 } from "three";
 import PhysicsObject from "../PhysicsObject";
 import Planet from "../Planet";
-import GrabObject, { OnLanding } from "../GrabObject";
+import GrabObject, { OnDeath, OnLanding } from "../GrabObject";
 import tuple from "../../../utils/types/tuple";
+import remap from "../../../utils/math/remap";
+import getViewport, { Viewport } from "../../../utils/webgl/viewport";
 
 type PhysicsState = "ATTRACTING" | "REPULSING"
 
@@ -18,13 +20,16 @@ export default class PhysicsController extends PhysicsObject {
   private currentPlanet: Planet
   private planets: Planet[]
   public peopleController: PeopleController
-  private grabObject: GrabObject
+  public grabObject: GrabObject
   public releasedCursorPosition = new Vector3()
   private state: PhysicsState = "ATTRACTING"
   private onLanding: OnLanding
+  private onDeath: OnDeath
   private hasLanded = false
+  private repulsedBeginningPosition = new Vector3()
+  private lifespanLength : number
 
-  constructor(index: number, peopleController: PeopleController, currentPlanet: Planet, planets: Planet[], grabObject: GrabObject, onLanding: OnLanding, mass = 1) {
+  constructor(index: number, peopleController: PeopleController, currentPlanet: Planet, planets: Planet[], grabObject: GrabObject, viewport: Viewport, onLanding: OnLanding, onDeath: OnDeath, mass = 1) {
     super(mass)
     this.index = index
     this.currentPlanet = currentPlanet
@@ -32,6 +37,10 @@ export default class PhysicsController extends PhysicsObject {
     this.planets = planets
     this.grabObject = grabObject
     this.onLanding = onLanding
+    this.onDeath = onDeath
+
+    this.lifespanLength = remap(Math.random(), [0, 1], [2, viewport.width/ 3])
+
     this.output = new Object3D()
     this.output.position.copy(peopleController.object.position)
     this.velocity.copy(peopleController.object.position)
@@ -77,6 +86,7 @@ export default class PhysicsController extends PhysicsObject {
 
   public setState(newState: PhysicsState) {
     this.state = newState
+    if(newState === "REPULSING") this.repulsedBeginningPosition.copy(this.grabObject.output.position)
   }
 
   public tick(time: number, delta: number) {
@@ -101,6 +111,9 @@ export default class PhysicsController extends PhysicsObject {
               this.hasLanded = true
               return
             }
+
+            const distanceFromBeginning = this.output.position.distanceTo(this.repulsedBeginningPosition)
+            if(distanceFromBeginning > this.lifespanLength) this.onDeath(this)
 
             this.forces.set("attractToPlanet", attractToPlanetForce)
             const repulsion = this.repulse(this.output.position, this.releasedCursorPosition)

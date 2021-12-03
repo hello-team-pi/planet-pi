@@ -4,7 +4,7 @@ import { MainSceneContext } from "../../Scenes/MainScene"
 import Planet from "../Planet"
 import { clamp } from "three/src/math/MathUtils"
 import PeopleMesh from "../People/PeopleMesh"
-import GrabObject, { OnLanding } from "../GrabObject"
+import GrabObject, { OnDeath, OnLanding } from "../GrabObject"
 import PeopleController from "../People/PeopleController"
 import DeadController from "../People/DeadController"
 import remap from "../../../utils/math/remap"
@@ -13,7 +13,6 @@ import json from "../../../assets/spritesheets/spritesheet.json"
 import AbstractObjectNoContext from "../../Abstract/AbstractObjectNoContext"
 import planetRepartition from "./planetsRepartition.json"
 import tuple from "../../../utils/types/tuple"
-import PhysicsController from "../People/PhysicsController"
 
 export default class World extends AbstractObject<MainSceneContext> {
   private tickingObjects: AbstractObjectNoContext[] = []
@@ -66,6 +65,11 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
     this.output.add(this.peopleMesh.mesh)
 
+    const onProjectionDeath : OnDeath = (physicsController) => {
+      physicsController.grabObject.removePeopleControllerTuple(physicsController.index)
+      this.handleDeadFromPlanet(physicsController.peopleController, {rotation: Math.random() * Math.PI * 2})
+    }
+
     const onLanding : OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
       landedPlanet.addPeopleController(physicsController.peopleController, Math.random() * Math.PI * 2)
       grabObject.removePeopleControllerTuple(physicsController.index)
@@ -78,7 +82,8 @@ export default class World extends AbstractObject<MainSceneContext> {
           this.context,
           landedPlanet,
           70,
-          onLanding
+          onLanding,
+          onProjectionDeath
         )
         this.grabObjects.push(newGrabObject)
         this.tickingObjects.push(newGrabObject)
@@ -92,7 +97,8 @@ export default class World extends AbstractObject<MainSceneContext> {
       this.context,
       this.context.sceneState.currentPlanet,
       70,
-      onLanding
+      onLanding,
+      onProjectionDeath
     )
 
     this.grabObjects.push(grabObject)
