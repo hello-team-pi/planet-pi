@@ -63,7 +63,7 @@ export default class SciFiBackground extends AbstractObjectWithSize<MainSceneCon
     this.uniforms.uScreenResolution.value.set(width, height)
   }
 
-  public tick() {
+  public tick(time: number, deltaTime: number) {
     if (this.params.useDebugOffset) return
     const cam = this.context.camera
     const { width, height } = getViewport(
@@ -73,8 +73,8 @@ export default class SciFiBackground extends AbstractObjectWithSize<MainSceneCon
     )
     this.output.position.set(cam.position.x, cam.position.y, cam.position.z - 1)
     this.uniforms.uGridOffset.value.set(
-      (cam.position.x / width) * this.windowSize.state.width,
-      (cam.position.y / height) * this.windowSize.state.height,
+      (cam.position.x / width) * this.windowSize.state.width + time * 20,
+      (cam.position.y / height) * this.windowSize.state.height + time * 20,
     )
   }
 
@@ -93,8 +93,8 @@ export default class SciFiBackground extends AbstractObjectWithSize<MainSceneCon
       .addInput(this.params, "imageTranslateOffset", { min: 0, max: 2, label: "Translate offset" })
       .on("change", ({ value }) => (this.uniforms.uImageTranslateOffset.value = value))
     folder.addInput(this.params, "useDebugOffset")
-    folder
-      .addInput(this.params, "gridOffset")
-      .on("change", ({ value }) => this.uniforms.uGridOffset.value.copy(value).multiplyScalar(10))
+    // folder
+    //   .addInput(this.params, "gridOffset")
+    //   .on("change", ({ value }) => this.uniforms.uGridOffset.value.copy(value).multiplyScalar(10))
   }
 }

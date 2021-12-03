@@ -104,9 +104,9 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     Planet.initTextures()
     this.peoplesControllers = new Set()
     this.initMesh(params)
-    this.peopleDiedCb = params.onPeopleDie || (() => { })
-    this.planetDiedCb = params.onPlanetDie || (() => { })
-    this.spawnCb = params.onSpawn || (() => { })
+    this.peopleDiedCb = params.onPeopleDie || (() => {})
+    this.planetDiedCb = params.onPlanetDie || (() => {})
+    this.spawnCb = params.onSpawn || (() => {})
     this.lifespan = params.lifeSpan
     Planet.initGui(context, this)
   }
@@ -209,9 +209,17 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   }
 
   private setUI(state: Planet["uiState"]) {
-    const visible = state !== "none" && Math.floor(this.timer * 2) % 2 === 0
+    const visible = state !== "none" && Math.floor(this.timer * 3) % 2 === 0
     this.frontUI.visible = visible
     this.backUI.visible = visible
+    if (
+      state !== "danger" &&
+      this.uiState === "danger" &&
+      this.context.sounds.planetWarning.playing()
+    )
+      setTimeout(() => this.context.sounds.planetWarning.stop(), 200)
+    if (state === "danger" && !this.context.sounds.planetWarning.playing())
+      this.context.sounds.planetWarning.play()
     if (this.uiState === state) return
     this.timer = 0
     if (state === "none") return
@@ -320,6 +328,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       if (this.lifetime >= 1 && lastLifeTime < 1) {
         this.killAll()
         this.planetDiedCb()
+        this.context.sounds.planetExplosion.play()
       }
       this.fluidMaterial.updateLifetime(this.lifetime)
     }
