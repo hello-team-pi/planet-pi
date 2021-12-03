@@ -42,7 +42,7 @@ export default class PhysicsController extends PhysicsObject {
     temporaryVectors.target.sub(target)
     const distance = temporaryVectors.target.length()
     temporaryVectors.target.normalize()
-    temporaryVectors.target.multiplyScalar(1 / distance)
+    temporaryVectors.target.multiplyScalar(distance)
     return temporaryVectors.target
   }
 
@@ -94,7 +94,7 @@ export default class PhysicsController extends PhysicsObject {
 
         case "REPULSING":
           {
-            const [attractToPlanet, stop] = this.attractToPlanet(this.planets[this.getClosestPlanetIndex()], this.output.position)
+            const [attractToPlanetForce, stop] = this.attractToPlanet(this.planets[this.getClosestPlanetIndex()], this.output.position)
 
             if (stop) {
               this.onLanding(this.currentPlanet, this.planets[this.getClosestPlanetIndex()], this, this.grabObject)
@@ -102,8 +102,9 @@ export default class PhysicsController extends PhysicsObject {
               return
             }
 
-            this.forces.set("attractToPlanet", attractToPlanet)
+            this.forces.set("attractToPlanet", attractToPlanetForce)
             const repulsion = this.repulse(this.output.position, this.releasedCursorPosition)
+            repulsion.multiplyScalar(0.01)
             this.forces.set("repulsion", repulsion)
           }
           break;
