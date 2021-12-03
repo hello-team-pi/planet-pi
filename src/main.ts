@@ -8,6 +8,8 @@ import ambiantSoundUrl from "./assets/sounds/ambiant/espace.mp3"
 import planetWarningSoundUrl from "./assets/sounds/planets/alerte.mp3"
 import planetExplosionSoundUrl from "./assets/sounds/planets/explosion.mp3"
 import endGameSound from "./assets/sounds/game_over/game_over.mp3"
+import aliens from "./assets/aliens.json"
+import planets from "./assets/planets.json"
 
 const canvas = document.querySelector<HTMLCanvasElement>("#webgl")!
 
@@ -37,6 +39,9 @@ const startButton = mainMenu.querySelector<HTMLButtonElement>(".button")!
 const endButton = endScreen.querySelector<HTMLButtonElement>(".button")!
 const peopleCounter = hud.querySelector<HTMLElement>("#peoples")!
 const planetCounter = hud.querySelector<HTMLElement>("#planets")!
+const intro = hud.querySelector<HTMLElement>(".intro")!
+const planet = intro.querySelector<HTMLElement>("#planet")!
+const species = intro.querySelector<HTMLElement>("#species")!
 
 const start = () => {
   globalState.step = "game"
@@ -57,6 +62,10 @@ globalState.__onChange(
     hud.style.display = step === "game" ? "flex" : "none"
     endScreen.style.display = step !== "end" ? "none" : "flex"
     if (step === "end" && previousStep !== "end") sounds.endGame.play()
+    if (step === "game") {
+      species.innerText = aliens[Math.floor(Math.random() * aliens.length)]
+      planet.innerText = planets[Math.floor(Math.random() * planets.length)]
+    }
   },
   true,
 )
