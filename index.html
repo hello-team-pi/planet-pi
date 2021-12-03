@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Lexend+Giga&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@400;700&display=swap"
       rel="stylesheet"
     />
   </head>
@@ -19,13 +19,25 @@
         <button class="button">Click to start</button>
       </div>
       <div id="hud">
-        <div class="counter">
-          <span id="planets">70</span>
-          <img src="src/assets/images/ui/ico-planet.svg" class="icons" />
-        </div>
-        <div class="counter">
-          <span id="peoples">1234</span>
-          <img src="src/assets/images/ui/ico-bonhomme.svg" class="icons" />
+        <div class="hudWrapper">
+          <div class="counterRect">
+            <div class="counter">
+              <span id="planets">70</span>
+              <img src="src/assets/images/ui/ico-planet.svg" class="icons" />
+            </div>
+            <div class="counter">
+              <span id="peoples">1234</span>
+              <img src="src/assets/images/ui/ico-bonhomme.svg" class="icons" />
+            </div>
+          </div>
+          <div class="hint"><strong>Click and drag</strong> to launch yourself.</div>
+          <div class="intro">
+            You are <strong>Klingons</strong> from planet <strong>Boris</strong>.
+            <br />
+            <br />
+            Your civilization is rapidly growing and draining the resources of its planet. Find
+            another one to survive.
+          </div>
         </div>
       </div>
     </div>

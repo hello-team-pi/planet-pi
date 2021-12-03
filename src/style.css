@@ -1,6 +1,10 @@
 body {
   --red: #df3b57;
+  --black: #1a1a1a;
+  --white: #ebebeb;
   margin: 0;
+  box-sizing: border-box;
+  user-select: none;
 }
 
 #app {
@@ -19,18 +23,40 @@ body {
 }
 
 #hud {
+}
+
+.counterRect {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background: var(--black);
+  border: 2px solid var(--white);
+  font-size: 4rem;
+  color: var(--white);
+  column-gap: 3rem;
+}
+
+.hudWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
   left: 50%;
   top: 4vh;
   transform: translate(-50%, 0);
   width: 800px;
-  display: flex;
-  justify-content: center;
-  background: #1a1a1a;
-  border: #ebebeb 2px solid;
-  font-size: 4rem;
-  color: white;
-  column-gap: 3rem;
+}
+
+.hint {
+  margin-top: 1.3rem;
+  display: inline-block;
+  color: var(--white);
+  font-size: 1.5rem;
+}
+
+.hint strong {
+  font-weight: 700;
+  color: var(--red);
 }
 
 .counter {
@@ -46,6 +72,25 @@ body {
 }
 #planets {
   width: 95px;
+}
+
+.intro {
+  position: fixed;
+  top: 65vh;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: 800px;
+
+  background: var(--black);
+  border: 2px solid var(--white);
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--white);
+  font-size: 1.5rem;
+}
+
+.intro strong {
+  color: var(--red);
 }
 
 .icons {
