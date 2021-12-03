@@ -7,12 +7,12 @@ body {
   user-select: none;
 }
 
-ul{
+ul {
   padding: 0;
   margin: 0;
 }
 
-li{
+li {
   list-style: none;
   padding: 0;
 }
@@ -23,7 +23,8 @@ li{
   -moz-osx-font-smoothing: grayscale;
 }
 
-#mainMenu, #endScreen {
+#mainMenu,
+#endScreen {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -140,36 +141,40 @@ li{
   color: var(--white);
 }
 
-#endScreen h2{
+#endScreen h2 {
   font-size: 36px;
 }
 
-#endScreen h3{
+#endScreen h3 {
   font-size: 32px;
 }
 
-#endScreen .button{
+#endScreen .button {
   padding: 13px 50px;
   font-size: 24px;
   margin-bottom: 88px;
 }
 
-#endScreen strong{
+#endScreen strong {
   color: var(--red);
 }
 
-#endScreen .grid, #endScreen .your-score{
+#endScreen .grid,
+#endScreen .your-score {
   width: 900px;
 }
 
-#endScreen .grid{
+#endScreen .grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr;
   font-size: 24px;
+
+  max-height: 200px;
+  overflow: scroll;
 }
 
-#endScreen .grid div{
+#endScreen .grid div {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -181,50 +186,50 @@ li{
   height: 36px;
 }
 
-#endScreen .grid__bordered{
+#endScreen .grid__bordered {
   border: 1px solid var(--white);
 }
 
-#endScreen .grid__underlined{
+#endScreen .grid__underlined {
   border-bottom: 1px solid var(--white);
 }
 
-#endScreen .your-score{
+#endScreen .your-score {
   border: 1px solid var(--white);
   padding: 20px 0;
   margin-bottom: 34px;
 }
 
-#endScreen .your-score li{
+#endScreen .your-score li {
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 22px;
 }
 
-#endScreen .your-score li img{
+#endScreen .your-score li img {
   margin-right: 21px;
   height: 62px;
 }
 
 /* Utility */
-.justify-left{
-  justify-content: flex-start!important;
+.justify-left {
+  justify-content: flex-start !important;
 }
 
-.p-10{
+.p-10 {
   padding-left: 10%;
 }
 
-.nopad{
-  padding: none!important;
+.nopad {
+  padding: none !important;
 }
 
 /* Dev mode */
-.tp-dfwv{
+.tp-dfwv {
   /* display: none; */
 }
 
-canvas:not(#webgl){
+canvas:not(#webgl) {
   /* display: none!important; */
 }

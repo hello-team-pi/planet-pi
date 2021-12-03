@@ -43,6 +43,38 @@ const intro = hud.querySelector<HTMLElement>(".intro")!
 const planet = intro.querySelector<HTMLElement>("#planet")!
 const species = intro.querySelector<HTMLElement>("#species")!
 
+const scoreboardPlanet = document.querySelector<HTMLElement>("#scoreboard-planet")!
+const scoreboardPeople = document.querySelector<HTMLElement>("#scoreboard-people")!
+const scoreboardName = document.querySelector<HTMLElement>("#scoreboard-name")!
+const table = document.querySelector<HTMLElement>("#table")!
+const entry1 = document.querySelector<HTMLElement>("#entry1")!
+const entry2 = document.querySelector<HTMLElement>("#entry2")!
+const entry3 = document.querySelector<HTMLElement>("#entry3")!
+const usableEntry1 = entry1.cloneNode() as HTMLElement
+entry1.remove()
+const usableEntry2 = entry2.cloneNode() as HTMLElement
+entry2.remove()
+const usableEntry3 = entry3.cloneNode() as HTMLElement
+entry3.remove()
+
+const alienName = aliens[Math.floor(Math.random() * aliens.length)]
+const planetName = planets[Math.floor(Math.random() * planets.length)]
+
+const data = localStorage.getItem("data")
+const finalData: { name: string; planet: number; people: number }[] = data ? JSON.parse(data) : []
+
+const addEntry = (d: { name: string; planet: number; people: number }) => {
+  const n1 = usableEntry1.cloneNode() as HTMLElement
+  const n2 = usableEntry2.cloneNode() as HTMLElement
+  const n3 = usableEntry3.cloneNode() as HTMLElement
+  n1.innerText = d.name
+  n2.innerText = d.planet.toString()
+  n3.innerText = d.people.toString()
+  table.appendChild(n1)
+  table.appendChild(n2)
+  table.appendChild(n3)
+}
+
 const start = () => {
   globalState.step = "game"
   sounds.ui.play()
@@ -61,10 +93,25 @@ globalState.__onChange(
     mainMenu.style.display = step !== "start" ? "none" : "flex"
     hud.style.display = step === "game" ? "flex" : "none"
     endScreen.style.display = step !== "end" ? "none" : "flex"
-    if (step === "end" && previousStep !== "end") sounds.endGame.play()
+    if (step === "end" && previousStep !== "end") {
+      sounds.endGame.play()
+      scoreboardPeople.innerText = globalState.deadPeople.toString()
+      scoreboardPlanet.innerText = globalState.deadPlanet.toString()
+      scoreboardName.innerText = alienName
+      const d = { name: alienName, people: globalState.deadPeople, planet: globalState.deadPlanet }
+
+      finalData.push(d)
+      for (const data of finalData.sort((a, b) => {
+        const diff = Number(b.planet) - Number(a.planet)
+        return diff === 0 ? Number(b.people) - Number(a.people) : diff
+      })) {
+        addEntry(data)
+      }
+      localStorage.setItem("data", JSON.stringify(finalData))
+    }
     if (step === "game") {
-      species.innerText = aliens[Math.floor(Math.random() * aliens.length)]
-      planet.innerText = planets[Math.floor(Math.random() * planets.length)]
+      species.innerText = alienName
+      planet.innerText = planetName
     }
   },
   true,
