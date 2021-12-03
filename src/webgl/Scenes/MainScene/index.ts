@@ -35,6 +35,7 @@ export default class MainScene extends AbstractObjectWithSize {
   })
 
   private tickingObjects: AbstractObject[] = []
+  private world : World
 
   constructor(context: WebGLAppContext) {
     super(context)
@@ -58,9 +59,13 @@ export default class MainScene extends AbstractObjectWithSize {
       this.assets.planetGeometry = mesh.geometry
     })
     this.context.globalState.__onChange("step", (step) => {
-      const world = new World(this.genContext())
-      this.tickingObjects.push(world)
-      this.scene.add(world.output)
+      if(step === "game"){
+        this.world = new World(this.genContext())
+        this.tickingObjects.push(this.world)
+        this.scene.add(this.world.output)
+      }else if(step === "end"){
+        this.world.output.visible = false
+      }
     })
     this.context.renderer.compile(this.scene, this.camera)
   }
@@ -85,7 +90,7 @@ export default class MainScene extends AbstractObjectWithSize {
       0.01,
       1000,
     )
-    this.camera.position.z = 50
+    this.camera.position.z = 41
     this.onResize(window.innerWidth, window.innerHeight)
     this.orbit = new OrbitControls(this.camera, this.context.renderer.domElement)
     this.orbit.enabled = false

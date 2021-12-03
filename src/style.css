@@ -7,6 +7,16 @@ body {
   user-select: none;
 }
 
+ul{
+  padding: 0;
+  margin: 0;
+}
+
+li{
+  list-style: none;
+  padding: 0;
+}
+
 #app {
   font-family: "Lexend Giga", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -126,19 +136,8 @@ body {
 
 /* End screen */
 
-ul{
-  padding: 0;
-  margin: 0;
-}
-
-li{
-  list-style: none;
-  padding: 0;
-}
-
 #endScreen {
-  background-color: #1a1a1a;
-  color: #E5E5E5;
+  color: var(--white);
 }
 
 #endScreen h2{
@@ -156,7 +155,7 @@ li{
 }
 
 #endScreen strong{
-  color: #DF3B57;
+  color: var(--red);
 }
 
 #endScreen .grid, #endScreen .your-score{
@@ -183,15 +182,15 @@ li{
 }
 
 #endScreen .grid__bordered{
-  border: 1px solid #E5E5E5;
+  border: 1px solid var(--white);
 }
 
 #endScreen .grid__underlined{
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid var(--white);
 }
 
 #endScreen .your-score{
-  border: 1px solid #E5E5E5;
+  border: 1px solid var(--white);
   padding: 20px 0;
   margin-bottom: 34px;
 }
@@ -219,4 +218,13 @@ li{
 
 .nopad{
   padding: none!important;
+}
+
+/* Dev mode */
+.tp-dfwv{
+  /* display: none; */
+}
+
+canvas:not(#webgl){
+  /* display: none!important; */
 }

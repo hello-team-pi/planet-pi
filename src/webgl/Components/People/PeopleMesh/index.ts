@@ -21,7 +21,7 @@ export default class PeopleMesh {
   constructor(
     maxAmount: number,
     context: MainSceneContext,
-    theme: PeopleColors = { body: "#e3c5a4", head: "#e3c5a4", mouth: "#373431" },
+    theme: PeopleColors = { body: "#ebebeb", head: "#d9d9d9", mouth: "#373431" },
   ) {
     this.theme = theme
     this.context = context

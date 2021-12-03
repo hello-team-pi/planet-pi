@@ -48,6 +48,7 @@ export default class WebGL {
     const deltaTime = this.clock.getDelta()
     const elapsedTime = this.clock.elapsedTime
     this.mainScene.tick(elapsedTime, deltaTime)
+
     this.renderer.render(this.mainScene.scene, this.mainScene.camera)
   }
 }

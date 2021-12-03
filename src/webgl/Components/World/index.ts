@@ -70,9 +70,14 @@ export default class World extends AbstractObject<MainSceneContext> {
 
     const onProjectionDeath: OnDeath = (physicsController) => {
       physicsController.grabObject.removePeopleControllerTuple(physicsController.index)
+
       this.handleDeadFromPlanet(physicsController.peopleController, {
         rotation: Math.random() * Math.PI * 2,
       })
+
+      const aliveControllers = physicsController.grabObject.peopleControllerTuples.filter(tuple=>tuple[0]!==null)
+      
+      if(aliveControllers.length === 0) console.log(this.context.globalState.step = "end");
     }
 
     const onLanding: OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {

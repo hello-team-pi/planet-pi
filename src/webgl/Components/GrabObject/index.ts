@@ -39,7 +39,8 @@ export default class GrabObject extends PhysicsObject {
     this.cursor.setCurrentPlanet(this.currentPlanet)
     this.onLanding = onLanding
     this.onDeath = onDeath
-    this.output = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial({ map: new TextureLoader().load(peopleImage) }))
+    // this.output = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial({ map: new TextureLoader().load(peopleImage) }))
+    this.output = new Object3D()
     this.viewport = getViewport(context.camera)
 
     this.output.scale.setScalar(0.3)

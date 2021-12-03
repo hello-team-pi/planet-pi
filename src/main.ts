@@ -32,6 +32,7 @@ const mainMenu = document.querySelector<HTMLElement>("#mainMenu")!
 const hud = document.querySelector<HTMLElement>("#hud")!
 const endScreen = document.querySelector<HTMLElement>('#endScreen')!
 const startButton = mainMenu.querySelector<HTMLButtonElement>(".button")!
+const endButton = endScreen.querySelector<HTMLButtonElement>(".button")!
 const peopleCounter = hud.querySelector<HTMLElement>("#peoples")!
 const planetCounter = hud.querySelector<HTMLElement>("#planets")!
 
@@ -41,6 +42,11 @@ const start = () => {
   sounds.ambiant.play()
 }
 startButton.addEventListener("click", start)
+
+const end = () => {
+  document.location.reload()
+}
+endButton.addEventListener('click', end)
 
 globalState.__onChange(
   "step",

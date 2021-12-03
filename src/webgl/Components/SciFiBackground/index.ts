@@ -63,14 +63,22 @@ export default class SciFiBackground extends AbstractObjectWithSize<MainSceneCon
     this.uniforms.uScreenResolution.value.set(width, height)
   }
 
-  public tick(time: number, deltaTime: number) {
+  // TODO: find out why this stops on game end
+  public tick(time: number, deltaTime: number) {    
     if (this.params.useDebugOffset) return
     const cam = this.context.camera
+
+    
+    // console.log(cam, cam.position, this.windowSize.state);
+    
     const { width, height } = getViewport(
       cam,
       [cam.position.x, cam.position.y, 0],
       this.windowSize.state,
     )
+
+    // console.log(width, height);
+
     this.output.position.set(cam.position.x, cam.position.y, cam.position.z - 1)
     this.uniforms.uGridOffset.value.set(
       (cam.position.x / width) * this.windowSize.state.width + time * 20,
