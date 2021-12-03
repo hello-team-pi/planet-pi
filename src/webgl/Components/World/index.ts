@@ -205,6 +205,9 @@ export default class World extends AbstractObject<MainSceneContext> {
     const planet = this.context.sceneState.currentPlanet!
     const controllers = Array.from(planet.peopleData.keys())
 
+    this.context.sounds.propulsionLoop.play()
+    this.context.sounds.propulsionLoop.loop()
+
     for (const controller of controllers) {
       planet.removePeopleController(controller)
     }
@@ -216,6 +219,10 @@ export default class World extends AbstractObject<MainSceneContext> {
   }
 
   private onMouseUp = () => {
+    this.context.sounds.propulsionLoop.stop()
+    this.context.sounds.launch.play()
+    this.context.sounds.launch.rate(remap(Math.random(), [0,1], [0.5, 3]))
+
     this.grabObjects[this.activeGrabObjectIndex].repulsePhysicalPeopleControllers()
     this.grabObjects[this.activeGrabObjectIndex].disappear()
   }

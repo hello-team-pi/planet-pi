@@ -32,9 +32,9 @@ const sounds = {
   planetWarning: new Howl({ src: [planetWarningSoundUrl], volume: 0.3 }),
   planetExplosion: new Howl({ src: [planetExplosionSoundUrl], volume: 0.3 }),
   propulsionChargeBuildUp: new Howl({ src: [propulsionChargeBuildUp], volume: 0.3 }),
-  propulsionLoop: new Howl({ src: [propulsionLoop], volume: 0.3 }),
+  propulsionLoop: new Howl({ src: [propulsionLoop], volume: 0.1 }),
   propulsionImpact: new Howl({ src: [propulsionImpact], volume: 0.1 }),
-  launch: new Howl({ src: [launch], volume: 0.3 }),
+  launch: new Howl({ src: [launch], volume: 0.2 }),
 }
 
 export type Sounds = typeof sounds

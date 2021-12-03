@@ -111,9 +111,10 @@ export default class PhysicsController extends PhysicsObject {
 
         case "REPULSING":
           {
-            const [attractToPlanetForce, stop] = this.attractToPlanet(this.planets[this.getClosestPlanetIndex()], this.output.position)
+            const closestPlanet = this.planets[this.getClosestPlanetIndex()]
+            const [attractToPlanetForce, stop] = this.attractToPlanet(closestPlanet, this.output.position)
 
-            if (stop) {              
+            if (stop && !closestPlanet.isDead && closestPlanet !== this.currentPlanet) {              
               this.onLanding(this.currentPlanet, this.planets[this.getClosestPlanetIndex()], this, this.grabObject)
               this.hasLanded = true
               return
@@ -122,7 +123,7 @@ export default class PhysicsController extends PhysicsObject {
             const distanceFromBeginning = this.output.position.distanceTo(this.repulsedBeginningPosition)
             if(distanceFromBeginning > this.lifespanLength) this.onDeath(this)
 
-            this.forces.set("attractToPlanet", attractToPlanetForce)
+            if(!closestPlanet.isDead && closestPlanet !== this.currentPlanet) this.forces.set("attractToPlanet", attractToPlanetForce)
             const repulsion = this.repulse(this.output.position, this.releasedCursorPosition)
             repulsion.multiplyScalar(0.01)
             this.forces.set("repulsion", repulsion)
