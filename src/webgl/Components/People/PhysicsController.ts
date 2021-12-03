@@ -39,7 +39,7 @@ export default class PhysicsController extends PhysicsObject {
     this.onLanding = onLanding
     this.onDeath = onDeath
 
-    this.lifespanLength = remap(Math.random(), [0, 1], [2, viewport.width/ 3])
+    this.lifespanLength = remap(Math.random(), [0, 1], [2, viewport.width/ 2.3])
 
     this.output = new Object3D()
     this.output.position.copy(peopleController.object.position)
