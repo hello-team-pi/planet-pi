@@ -71,7 +71,7 @@ export default class World extends AbstractObject<MainSceneContext> {
       grabObject.removePeopleControllerTuple(physicsController.index)
 
       if(this.context.sceneState.currentPlanet !== landedPlanet) {
-        // TODO: help
+        // /TODO: hlep
         // First one has landed
 
         const newGrabObject = new GrabObject(
