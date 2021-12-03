@@ -97,7 +97,7 @@ export default class MainScene extends AbstractObjectWithSize {
       0.01,
       1000,
     )
-    this.camera.position.z = 41
+    this.camera.position.z = 45
     this.onResize(window.innerWidth, window.innerHeight)
     this.orbit = new OrbitControls(this.camera, this.context.renderer.domElement)
     this.orbit.enabled = false

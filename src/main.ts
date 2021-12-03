@@ -27,15 +27,15 @@ const globalState = observableState<{ step: GameStep; deadPeople: number; deadPl
 })
 
 const sounds = {
-  ui: new Howl({ src: [uiSoundUrl] }),
-  ambiant: new Howl({ src: [ambiantSoundUrl], loop: true, volume: 0.2 }),
-  endGame: new Howl({ src: [endGameSound] }),
+  ui: new Howl({ src: [uiSoundUrl], volume: 0.1 }),
+  ambiant: new Howl({ src: [ambiantSoundUrl], loop: true, volume: 0.4 }),
+  endGame: new Howl({ src: [endGameSound], volume: 0.2 }),
   planetWarning: new Howl({ src: [planetWarningSoundUrl], volume: 0.1 }),
   planetExplosion: new Howl({ src: [planetExplosionSoundUrl], volume: 0.2 }),
-  propulsionChargeBuildUp: new Howl({ src: [propulsionChargeBuildUp], volume: 0.3 }),
-  propulsionLoop: new Howl({ loop: true, src: [propulsionLoop], volume: 0.1 }),
+  propulsionChargeBuildUp: new Howl({ src: [propulsionChargeBuildUp], volume: 0.1 }),
+  propulsionLoop: new Howl({ loop: true, src: [propulsionLoop], volume: 0.0 }),
   propulsionImpact: new Howl({ src: [propulsionImpact], volume: 0.1 }),
-  launch: new Howl({ src: [launch], volume: 0.2 }),
+  launch: new Howl({ src: [launch], volume: 0.05 }),
   music: new Howl({ src: [musicUrl], loop: true, volume: 0.05 }),
 }
 
@@ -87,6 +87,7 @@ const addEntry = (d: { name: string; planet: number; people: number }) => {
 
 const start = () => {
   globalState.step = "game"
+  sounds.ambiant.stop()
 }
 startButton.addEventListener("click", start)
 
@@ -129,7 +130,7 @@ globalState.__onChange(
 
       sounds.music.play()
       sounds.ui.play()
-      sounds.ambiant.play()
+      // sounds.ambiant.play()
     }
   },
   true,
@@ -152,6 +153,8 @@ globalState.__onChange(
 
 // // "Dev mode"
 // setTimeout(start, 700)
+
+sounds.ambiant.play()
 
 const webgl = new WebGL(canvas, globalState, sounds)
 
