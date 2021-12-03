@@ -7,6 +7,7 @@ import uiSoundUrl from "./assets/sounds/ui/ui.mp3"
 import ambiantSoundUrl from "./assets/sounds/ambiant/espace.mp3"
 import planetWarningSoundUrl from "./assets/sounds/planets/alerte.mp3"
 import planetExplosionSoundUrl from "./assets/sounds/planets/explosion.mp3"
+import endGameSound from "./assets/sounds/game_over/game_over.mp3"
 
 const canvas = document.querySelector<HTMLCanvasElement>("#webgl")!
 
@@ -21,6 +22,7 @@ const globalState = observableState<{ step: GameStep; deadPeople: number; deadPl
 const sounds = {
   ui: new Howl({ src: [uiSoundUrl] }),
   ambiant: new Howl({ src: [ambiantSoundUrl], loop: true, volume: 0.2 }),
+  endGame: new Howl({ src: [endGameSound] }),
   planetWarning: new Howl({ src: [planetWarningSoundUrl], volume: 0.3 }),
   planetExplosion: new Howl({ src: [planetExplosionSoundUrl], volume: 0.3 }),
 }
@@ -30,7 +32,7 @@ export type GlobalState = typeof globalState
 
 const mainMenu = document.querySelector<HTMLElement>("#mainMenu")!
 const hud = document.querySelector<HTMLElement>("#hud")!
-const endScreen = document.querySelector<HTMLElement>('#endScreen')!
+const endScreen = document.querySelector<HTMLElement>("#endScreen")!
 const startButton = mainMenu.querySelector<HTMLButtonElement>(".button")!
 const endButton = endScreen.querySelector<HTMLButtonElement>(".button")!
 const peopleCounter = hud.querySelector<HTMLElement>("#peoples")!
@@ -46,14 +48,15 @@ startButton.addEventListener("click", start)
 const end = () => {
   document.location.reload()
 }
-endButton.addEventListener('click', end)
+endButton.addEventListener("click", end)
 
 globalState.__onChange(
   "step",
-  (step) => {
+  (step, previousStep) => {
     mainMenu.style.display = step !== "start" ? "none" : "flex"
-    hud.style.display = step === "start" ? "none" : "none"  
+    hud.style.display = step === "game" ? "flex" : "none"
     endScreen.style.display = step !== "end" ? "none" : "flex"
+    if (step === "end" && previousStep !== "end") sounds.endGame.play()
   },
   true,
 )
@@ -73,8 +76,8 @@ globalState.__onChange(
   true,
 )
 
-// "Dev mode"
-setTimeout(start, 700)
+// // "Dev mode"
+// setTimeout(start, 700)
 
 const webgl = new WebGL(canvas, globalState, sounds)
 

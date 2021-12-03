@@ -31,6 +31,19 @@ export default class World extends AbstractObject<MainSceneContext> {
     this.setWorld()
   }
 
+  public getAliveNumber() {
+    let alive = 0
+    for (const planet of this.planets) {
+      alive += planet.peopleAmount
+    }
+    for (const [controller] of this.grabObjects[this.activeGrabObjectIndex]
+      .peopleControllerTuples) {
+      if (controller) alive++
+    }
+
+    return alive
+  }
+
   private setWorld = () => {
     this.output = new THREE.Group()
     const planetTypes = tuple("blue" as const, "green" as const, "purple" as const)
@@ -46,13 +59,11 @@ export default class World extends AbstractObject<MainSceneContext> {
         lifeSpan: remap(Math.random(), [0, 1], [10, 10]),
         onPlanetDie: () => {
           this.context.globalState.deadPlanet++
-          let alive = 0
-          for (const planet of this.planets) {
-            alive += planet.peopleAmount
-          }
-          setTimeout(() => {
-            if (alive === 0) this.context.globalState.step = "end"
-          }, 800)
+          const alive = this.getAliveNumber()
+          if (alive === 0)
+            setTimeout(() => {
+              this.context.globalState.step = "end"
+            }, 800)
         },
         onPeopleDie: this.handleDeadFromPlanet,
         onSpawn: this.handleSpawn,
@@ -84,11 +95,12 @@ export default class World extends AbstractObject<MainSceneContext> {
         rotation: Math.random() * Math.PI * 2,
       })
 
-      const aliveControllers = physicsController.grabObject.peopleControllerTuples.filter(
-        (tuple) => tuple[0] !== null,
-      )
+      const alive = this.getAliveNumber()
 
-      if (aliveControllers.length === 0) this.context.globalState.step = "end"
+      if (alive === 0)
+        setTimeout(() => {
+          this.context.globalState.step = "end"
+        }, 800)
     }
 
     const onLanding: OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
