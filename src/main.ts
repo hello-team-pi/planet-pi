@@ -3,8 +3,8 @@ import WebGL from "./webgl"
 import Stats from "stats.js"
 import observableState from "./utils/observableState"
 import { Howl } from "howler"
-import uiSoundUrl from "./assets/sounds/ui/ui.wav"
-import ambiantSoundUrl from "./assets/sounds/ambiant/espace.wav"
+import uiSoundUrl from "./assets/sounds/ui/ui.mp3"
+import ambiantSoundUrl from "./assets/sounds/ambiant/espace.mp3"
 
 const canvas = document.querySelector<HTMLCanvasElement>("#webgl")!
 
