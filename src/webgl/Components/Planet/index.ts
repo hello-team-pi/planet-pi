@@ -46,6 +46,11 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private animator: Animator<"PLANET">
 
   private peoplesControllers: Set<PeopleController>
+
+  public get peopleAmount(): number {
+    return this.peoplesControllers.size
+  }
+
   private peopleDiedCb: PlanetParams["onPeopleDie"]
   private planetDiedCb: PlanetParams["onPlanetDie"]
   private spawnCb: PlanetParams["onSpawn"]

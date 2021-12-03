@@ -46,6 +46,13 @@ export default class World extends AbstractObject<MainSceneContext> {
         lifeSpan: remap(Math.random(), [0, 1], [10, 10]),
         onPlanetDie: () => {
           this.context.globalState.deadPlanet++
+          let alive = 0
+          for (const planet of this.planets) {
+            alive += planet.peopleAmount
+          }
+          setTimeout(() => {
+            if (alive === 0) this.context.globalState.step = "end"
+          }, 800)
         },
         onPeopleDie: this.handleDeadFromPlanet,
         onSpawn: this.handleSpawn,
@@ -77,9 +84,11 @@ export default class World extends AbstractObject<MainSceneContext> {
         rotation: Math.random() * Math.PI * 2,
       })
 
-      const aliveControllers = physicsController.grabObject.peopleControllerTuples.filter(tuple=>tuple[0]!==null)
+      const aliveControllers = physicsController.grabObject.peopleControllerTuples.filter(
+        (tuple) => tuple[0] !== null,
+      )
 
-      if(aliveControllers.length === 0) this.context.globalState.step = "end";
+      if (aliveControllers.length === 0) this.context.globalState.step = "end"
     }
 
     const onLanding: OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
