@@ -12,7 +12,6 @@ export default class WebGL {
   private gui: Pane
   private globalState: GlobalState
   private sounds: Sounds
-  private startTime: number = 100000
 
   constructor(htmlElement: HTMLCanvasElement, state: GlobalState, sounds: Sounds) {
     this.clock = new THREE.Clock(true)
@@ -43,17 +42,11 @@ export default class WebGL {
     }
     resize()
     window.addEventListener("resize", resize)
-
-    this.globalState.__onChange("step", (step, prev) => {
-      if (step === "game" && prev !== "game") this.startTime = this.clock.elapsedTime
-    })
   }
 
   public tick() {
     const deltaTime = this.clock.getDelta()
     const elapsedTime = this.clock.elapsedTime
-    if (elapsedTime > this.startTime + 20 && this.globalState.isIntro === true)
-      this.globalState.isIntro = false
     this.mainScene.tick(elapsedTime, deltaTime)
 
     this.renderer.render(this.mainScene.scene, this.mainScene.camera)

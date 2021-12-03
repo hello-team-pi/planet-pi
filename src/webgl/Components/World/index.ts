@@ -128,9 +128,8 @@ export default class World extends AbstractObject<MainSceneContext> {
 
         this.context.sceneState.currentPlanet = landedPlanet
 
-        
         this.context.sounds.propulsionImpact.play()
-        this.context.sounds.propulsionImpact.rate(remap(Math.random(), [0,1], [0.5, 3]))
+        this.context.sounds.propulsionImpact.rate(remap(Math.random(), [0, 1], [0.5, 3]))
       }
     }
     const grabObject = new GrabObject(
@@ -144,8 +143,7 @@ export default class World extends AbstractObject<MainSceneContext> {
     this.grabObjects.push(grabObject)
     this.tickingObjects.push(grabObject)
     this.output.add(grabObject.output)
-
-    this.setEvents()
+    this.context.globalState.__onChange("isIntro", () => this.setEvents())
   }
 
   private queryController() {
@@ -221,7 +219,7 @@ export default class World extends AbstractObject<MainSceneContext> {
   private onMouseUp = () => {
     this.context.sounds.propulsionLoop.stop()
     this.context.sounds.launch.play()
-    this.context.sounds.launch.rate(remap(Math.random(), [0,1], [0.5, 3]))
+    this.context.sounds.launch.rate(remap(Math.random(), [0, 1], [0.5, 3]))
 
     this.grabObjects[this.activeGrabObjectIndex].repulsePhysicalPeopleControllers()
     this.grabObjects[this.activeGrabObjectIndex].disappear()

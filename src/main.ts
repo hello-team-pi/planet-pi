@@ -144,6 +144,10 @@ globalState.__onChange(
 
       sounds.music.play()
       sounds.ui.play()
+
+      document.addEventListener("mousedown", () => {
+        if (globalState.isIntro) globalState.isIntro = false
+      })
       // sounds.ambiant.play()
     }
   },
