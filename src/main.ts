@@ -5,6 +5,7 @@ import observableState from "./utils/observableState"
 import { Howl } from "howler"
 import uiSoundUrl from "./assets/sounds/ui/ui.mp3"
 import ambiantSoundUrl from "./assets/sounds/ambiant/espace.mp3"
+import planetWarningSoundUrl from "./assets/sounds/planets/alerte.mp3"
 
 const canvas = document.querySelector<HTMLCanvasElement>("#webgl")!
 
@@ -15,7 +16,9 @@ const globalState = observableState<{ step: GameStep }>({ step: "start" })
 const sounds = {
   ui: new Howl({ src: [uiSoundUrl] }),
   ambiant: new Howl({ src: [ambiantSoundUrl], loop: true, volume: 0.2 }),
+  planetWarning: new Howl({ src: [planetWarningSoundUrl], volume: 0.3 }),
 }
+
 export type Sounds = typeof sounds
 export type GlobalState = typeof globalState
 
