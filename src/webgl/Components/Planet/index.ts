@@ -308,7 +308,10 @@ export default class Planet extends AbstractObject<MainSceneContext> {
         if (closeNeighbour > Planet.spawnParams.neighbourLimit) {
           this.kill(controller)
           state = "overpopulation"
-        } else if (Math.random() < Planet.spawnParams.spawnProba)
+        } else if (
+          Math.random() <
+          remap(closeNeighbour, [0, Planet.spawnParams.neighbourLimit], [0.02, 0.0001])
+        )
           this.spawnCb(this, this.peopleData.get(controller)!)
 
         return hasMoved ? "walk" : "alive"
@@ -323,7 +326,8 @@ export default class Planet extends AbstractObject<MainSceneContext> {
         [0, 1],
         [this.startRadius, this.startRadius * 0.6],
       )
-      if (this.lifespan - this.lifetime * this.lifespan < 3) this.fluidMaterial.setIsShaky(true)
+      if (this.lifespan - this.lifetime * this.lifespan < 3 && lastLifeTime < 1)
+        this.fluidMaterial.setIsShaky(true)
       if (this.lifespan - this.lifetime * this.lifespan < 5 && this.peoplesControllers.size > 0)
         state = "danger"
       if (this.lifetime >= 1) state = "none"
@@ -336,7 +340,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       this.fluidMaterial.updateLifetime(this.lifetime)
     }
     this.timer += deltaTime
-    this.setUI(state)
+    this.setUI(this.peoplesControllers.size > 0 ? state : "none")
 
     this.fluidMaterial.tick(time, deltaTime)
   }
