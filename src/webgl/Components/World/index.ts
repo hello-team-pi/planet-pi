@@ -127,6 +127,10 @@ export default class World extends AbstractObject<MainSceneContext> {
         this.activeGrabObjectIndex++
 
         this.context.sceneState.currentPlanet = landedPlanet
+
+        
+        this.context.sounds.propulsionImpact.play()
+        this.context.sounds.propulsionImpact.rate(remap(Math.random(), [0,1], [0.5, 3]))
       }
     }
     const grabObject = new GrabObject(

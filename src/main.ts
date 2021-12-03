@@ -7,6 +7,10 @@ import uiSoundUrl from "./assets/sounds/ui/ui.mp3"
 import ambiantSoundUrl from "./assets/sounds/ambiant/espace.mp3"
 import planetWarningSoundUrl from "./assets/sounds/planets/alerte.mp3"
 import planetExplosionSoundUrl from "./assets/sounds/planets/explosion.mp3"
+import propulsionChargeBuildUp from "./assets/sounds/propulsion/charge_build_up.mp3"
+import propulsionLoop from "./assets/sounds/propulsion/charge_loop.mp3"
+import propulsionImpact from "./assets/sounds/propulsion/impact.mp3"
+import launch from "./assets/sounds/propulsion/launch.mp3"
 import endGameSound from "./assets/sounds/game_over/game_over.mp3"
 import aliens from "./assets/aliens.json"
 import planets from "./assets/planets.json"
@@ -27,6 +31,10 @@ const sounds = {
   endGame: new Howl({ src: [endGameSound] }),
   planetWarning: new Howl({ src: [planetWarningSoundUrl], volume: 0.3 }),
   planetExplosion: new Howl({ src: [planetExplosionSoundUrl], volume: 0.3 }),
+  propulsionChargeBuildUp: new Howl({ src: [propulsionChargeBuildUp], volume: 0.3 }),
+  propulsionLoop: new Howl({ src: [propulsionLoop], volume: 0.3 }),
+  propulsionImpact: new Howl({ src: [propulsionImpact], volume: 0.1 }),
+  launch: new Howl({ src: [launch], volume: 0.3 }),
 }
 
 export type Sounds = typeof sounds
