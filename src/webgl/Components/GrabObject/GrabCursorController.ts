@@ -4,7 +4,7 @@ import AbstractObjectWithSize from "../../Abstract/AbstractObjectWithSize"
 import { MainSceneContext } from "../../Scenes/MainScene"
 import Planet from "../Planet"
 
-export default class CursorController extends AbstractObjectWithSize<MainSceneContext> {
+export default class GrabCursorController extends AbstractObjectWithSize<MainSceneContext> {
   public cursorPos: THREE.Vector3 = new THREE.Vector3()
   public isClicking = false
   private currentPlanet: Planet | null = null
