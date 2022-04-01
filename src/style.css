@@ -33,9 +33,6 @@ li {
   height: 100vh;
 }
 
-#hud {
-}
-
 .counterRect {
   width: 100%;
   display: flex;
@@ -58,19 +55,20 @@ li {
   width: 800px;
 }
 
-.hint {
+.hudWrapper .hint {
   margin-top: 1.3rem;
   display: inline-block;
   color: var(--white);
   font-size: 1.5rem;
+  transition: opacity 0.5s ease-in;
 }
 
-.hint strong {
+.hudWrapper .hint strong {
   font-weight: 700;
   color: var(--red);
 }
 
-.counter {
+.hudWrapper .counter {
   display: flex;
   /* justify-content: center; */
   align-items: center;

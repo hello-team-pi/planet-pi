@@ -148,7 +148,10 @@ globalState.__onChange(
       document.addEventListener("cursordown", () => {
         if (globalState.isIntro) globalState.isIntro = false
       })
-      // sounds.ambiant.play()
+      
+      setTimeout(() => {
+        document.querySelector<HTMLElement>(".hudWrapper .hint")!.style.opacity = "0"
+      }, 3000);
     }
   },
   true,
@@ -169,14 +172,14 @@ globalState.__onChange(
   true,
 )
 
-// // "Dev mode"
-// setTimeout(start, 700)
-
 sounds.ambiant.play()
 
 const webgl = new WebGL(canvas, globalState, sounds)
 
 const stats = new Stats()
+
+// "Dev mode"
+setTimeout(start, 700)
 // document.body.appendChild(stats.dom)
 
 const raf = () => {
