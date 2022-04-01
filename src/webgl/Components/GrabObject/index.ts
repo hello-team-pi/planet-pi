@@ -8,7 +8,7 @@ import {
   Vector3,
 } from "three"
 import { MainSceneContext } from "../../Scenes/MainScene"
-import CursorController from "../People/CursorController"
+import GrabCursorController from "./GrabCursorController"
 import PhysicsObject from "../PhysicsObject"
 import Planet from "../Planet"
 import cursorImage from "../../../assets/images/ui/cursor_target.png"
@@ -36,7 +36,7 @@ const temporaryVectors = {
 export default class GrabObject extends PhysicsObject {
   public output: Object3D
   public peopleControllerTuples: [PeopleController, PhysicsController][] & any[] //TODO: hlep
-  public cursor: CursorController
+  public cursor: GrabCursorController
   private currentPlanet: Planet
   private onLanding: OnLanding
   private onDeath: OnDeath
@@ -54,7 +54,7 @@ export default class GrabObject extends PhysicsObject {
   ) {
     super(mass)
 
-    this.cursor = new CursorController(context)
+    this.cursor = new GrabCursorController(context)
     this.currentPlanet = originPlanet
     this.cursor.setCurrentPlanet(this.currentPlanet)
     this.onLanding = onLanding
