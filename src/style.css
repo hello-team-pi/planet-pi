@@ -159,12 +159,12 @@ li {
   color: var(--red);
 }
 
-#endScreen .grid,
+.endgrid,
 #endScreen .your-score {
   width: 900px;
 }
 
-#endScreen .grid {
+.endgrid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr;
@@ -172,25 +172,34 @@ li {
 
   max-height: 200px;
   overflow: scroll;
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
-#endScreen .grid div {
+/* Hide scrollbar for Chrome, Safari and Opera */
+.endgrid::-webkit-scrollbar {
+  display: none;
+}
+
+.endgrid div {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 6px;
 }
 
-#endScreen .grid img {
+.endgrid img {
   width: auto;
   height: 36px;
 }
 
-#endScreen .grid__bordered {
+.endgrid__bordered {
   border: 1px solid var(--white);
 }
 
-#endScreen .grid__underlined {
+.endgrid__underlined {
   border-bottom: 1px solid var(--white);
 }
 
