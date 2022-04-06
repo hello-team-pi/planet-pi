@@ -69,6 +69,9 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     spawnProba: 0.005,
     restartSpawn: 3,
   }
+  private static globalPlanetParams = {
+    canDie: false
+  }
   private static textures: {
     front: {
       overpopulation: THREE.Texture
@@ -168,6 +171,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       }
     })
     spawnFolder.addInput(this.spawnParams, "restartSpawn", { step: 1, label: "Restart Spawn" })
+    this.gui.addInput(this.globalPlanetParams, 'canDie')
   }
 
   private initMesh({
@@ -257,7 +261,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   }
 
   public addPeopleController(controller: PeopleController, initRotation: number) {
-    this.isDying = true
+    if(Planet.globalPlanetParams.canDie) this.isDying = true
     this.peoplesControllers.add(controller)
     this.peopleData.set(controller, { rotation: initRotation })
   }
@@ -338,7 +342,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
       })
     }
 
-    if (this.isDying && !this.context.globalState.isIntro) {
+    if (Planet.globalPlanetParams.canDie && this.isDying && !this.context.globalState.isIntro) {
       const lastLifeTime = this.lifetime
       this.lifetime = Math.min(this.lifetime + deltaTime / this.lifespan, 1)
       if (!this.isDead)
