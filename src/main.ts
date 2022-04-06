@@ -182,6 +182,7 @@ const stats = new Stats()
 if(import.meta.env.MODE === "development"){
   setTimeout(start, 700)
   document.body.appendChild(stats.dom)
+  document.body.querySelector<HTMLElement>(".tp-dfwv")!.style.display = "block"
 }
 
 const raf = () => {
