@@ -179,8 +179,10 @@ const webgl = new WebGL(canvas, globalState, sounds)
 const stats = new Stats()
 
 // "Dev mode"
-setTimeout(start, 700)
-// document.body.appendChild(stats.dom)
+if(import.meta.env.MODE === "development"){
+  setTimeout(start, 700)
+  document.body.appendChild(stats.dom)
+}
 
 const raf = () => {
   stats.begin()
