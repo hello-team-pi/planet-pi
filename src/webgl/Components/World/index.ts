@@ -117,7 +117,7 @@ export default class World extends AbstractObject<MainSceneContext> {
         const newGrabObject = new GrabObject(
           this.context,
           landedPlanet,
-          70,
+          remap(Math.random(), [0, 1], [15, 105]),
           onLanding,
           onProjectionDeath,
         )
@@ -135,7 +135,7 @@ export default class World extends AbstractObject<MainSceneContext> {
     const grabObject = new GrabObject(
       this.context,
       this.context.sceneState.currentPlanet,
-      70,
+      remap(Math.random(), [0, 1], [15, 105]),
       onLanding,
       onProjectionDeath,
     )
