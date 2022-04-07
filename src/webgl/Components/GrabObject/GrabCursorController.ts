@@ -34,25 +34,6 @@ export default class GrabCursorController extends AbstractObjectWithSize<MainSce
     raycaster.ray.intersectPlane(plane, this.cursorPos)
   }
 
-  // Not used for now
-  private handleDrag = (e: MouseEvent) => {
-    if (!this.isClicking) return
-
-    const plane = new THREE.Plane(new THREE.Vector3(0, 0, -1))
-    plane.constant = 0
-    plane.translate(this.currentPlanet!.position)
-    const raycaster = new THREE.Raycaster()
-    const mouse = normalizeMouse({ x: e.clientX, y: e.clientY }, this.windowSize.state)
-
-    raycaster.setFromCamera(mouse, this.context.camera)
-    raycaster.ray.intersectPlane(plane, this.cursorPos)
-  }
-
-  public click(planet: Planet) {
-    this.isClicking = true
-    this.currentPlanet = planet
-  }
-
   public release() {
     this.isClicking = false
   }

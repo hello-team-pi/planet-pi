@@ -16,6 +16,7 @@ import gsap from "gsap"
 
 import fragmentShader from "./anim.frag?raw"
 import vertexShader from "./anim.vert?raw"
+import GrabObject from "../GrabObject"
 
 type PeopleData = { rotation: number }
 
@@ -24,6 +25,7 @@ type PlanetParams = {
   lifeSpan: number
   radius: number
   type: PlanetType
+  planets: Planet[]
   onPeopleDie: (controller: PeopleController, data: PeopleData) => void
   onPlanetDie: () => void
   onSpawn: (planet: Planet, data: PeopleData) => void
@@ -46,6 +48,7 @@ export default class Planet extends AbstractObject<MainSceneContext> {
   private animator: Animator<"PLANET">
 
   private peoplesControllers: Set<PeopleController>
+  private grabObject: GrabObject
 
   public get peopleAmount(): number {
     return this.peoplesControllers.size
@@ -239,6 +242,17 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.startRadius = radius
   }
 
+  public initGrab(){
+    this.grabObject = new GrabObject(
+      this.context,
+      this,
+      this.peoplesControllers,
+      remap(Math.random(), [0, 1], [15, 105]),
+    )
+
+    this.output.add(this.grabObject.output)
+  }
+
   private setUI(state: Planet["uiState"]) {
     const visible = state !== "none" && Math.floor(this.timer * 3) % 2 === 0
     this.frontUI.visible = visible
@@ -381,5 +395,6 @@ export default class Planet extends AbstractObject<MainSceneContext> {
     this.animationQuad.material.uniforms.uUvOffset.value.copy(
       this.context.planetSpritesheetParser.getByName(this.animator.getFrame()),
     )
+   if(this.grabObject) this.grabObject.tick(time, deltaTime)
   }
 }

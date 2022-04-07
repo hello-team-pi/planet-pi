@@ -4,8 +4,8 @@ import { MainSceneContext } from "../../Scenes/MainScene"
 import Planet from "../Planet"
 import { clamp } from "three/src/math/MathUtils"
 import PeopleMesh from "../People/PeopleMesh"
-import GrabObject, { OnDeath, OnLanding } from "../GrabObject"
-import PeopleController from "../People/PeopleController"
+import GrabObject from "../GrabObject"
+import PeopleController, { OnDeath, OnLanding } from "../People/PeopleController"
 import DeadController from "../People/DeadController"
 import remap from "../../../utils/math/remap"
 import SpritesheetParser from "../SpritesheetParser"
@@ -15,15 +15,15 @@ import planetRepartition from "./planetsRepartition.json"
 import tuple from "../../../utils/types/tuple"
 
 export default class World extends AbstractObject<MainSceneContext> {
+  private planets: Planet[] // accessed by PhysicsController
   private tickingObjects: AbstractObjectNoContext[] = []
   private peopleMesh: PeopleMesh
-  private planets: Planet[]
   private dead: DeadController[] = []
   private grabObjects: GrabObject[] = []
   private controllerStock: PeopleController[] = []
   private nextIndex = 0
   private spritesheet = new SpritesheetParser(json)
-  private activeGrabObjectIndex = 0 //TODO: hlep
+  // private activeGrabObjectIndex = 0 //TODO: hlep
 
   constructor(context: MainSceneContext) {
     super(context)
@@ -36,10 +36,10 @@ export default class World extends AbstractObject<MainSceneContext> {
     for (const planet of this.planets) {
       alive += planet.peopleAmount
     }
-    for (const [controller] of this.grabObjects[this.activeGrabObjectIndex]
-      .peopleControllerTuples) {
-      if (controller) alive++
-    }
+    // for (const [controller] of this.grabObjects[this.activeGrabObjectIndex]
+    //   .peopleControllerTuples) {
+    //   if (controller) alive++
+    // }
 
     return alive
   }
@@ -57,6 +57,7 @@ export default class World extends AbstractObject<MainSceneContext> {
         radius: remap(Math.random(), [0, 1], [1.5, 3]),
         type: planetTypes[Math.floor(Math.random() * planetTypes.length)],
         lifeSpan: remap(Math.random(), [0, 1], [4, 7]),
+        planets: this.planets,
         onPlanetDie: () => {
           this.context.globalState.deadPlanet++
           const alive = this.getAliveNumber()
@@ -88,75 +89,64 @@ export default class World extends AbstractObject<MainSceneContext> {
     }
     this.output.add(this.peopleMesh.mesh)
 
-    const onProjectionDeath: OnDeath = (physicsController) => {
-      physicsController.grabObject.removePeopleControllerTuple(physicsController.index)
+    this.context.sceneState.currentPlanet.initGrab()
 
-      this.handleDeadFromPlanet(physicsController.peopleController, {
-        rotation: Math.random() * Math.PI * 2,
-      })
+    // const onProjectionDeath: OnDeath = (physicsController) => {
+    //   // physicsController.grabObject.removePeopleControllerTuple(physicsController.index)
+    //   // remove physics controller
 
-      const alive = this.getAliveNumber()
+    //   this.handleDeadFromPlanet(physicsController.peopleController, {
+    //     rotation: Math.random() * Math.PI * 2,
+    //   })
 
-      if (alive === 0)
-        setTimeout(() => {
-          this.context.globalState.step = "end"
-        }, 800)
-    }
+    //   const alive = this.getAliveNumber()
 
-    const onLanding: OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
-      landedPlanet.addPeopleController(
-        physicsController.peopleController,
-        Math.random() * Math.PI * 2,
-      )
-      grabObject.removePeopleControllerTuple(physicsController.index)
+    //   if (alive === 0)
+    //     setTimeout(() => {
+    //       this.context.globalState.step = "end"
+    //     }, 800)
+    // }
 
-      if (this.context.sceneState.currentPlanet !== landedPlanet) {
-        // /TODO: hlep
-        // First one has landed
+    // const onLanding: OnLanding = (previousPlanet, landedPlanet, physicsController, grabObject) => {
+    //   landedPlanet.addPeopleController(
+    //     physicsController.peopleController,
+    //     Math.random() * Math.PI * 2,
+    //   )
 
-        const newGrabObject = new GrabObject(
-          this.context,
-          landedPlanet,
-          remap(Math.random(), [0, 1], [15, 105]),
-          onLanding,
-          onProjectionDeath,
-        )
-        this.grabObjects.push(newGrabObject)
-        this.tickingObjects.push(newGrabObject)
-        this.output.add(newGrabObject.output)
-        this.activeGrabObjectIndex++
+    //   if (this.context.sceneState.currentPlanet !== landedPlanet) {
+    //     // /TODO: hlep
+    //     // First one has landed
 
-        this.context.sceneState.currentPlanet = landedPlanet
+    //     const newGrabObject = new GrabObject(
+    //       this.context,
+    //       landedPlanet,
+    //       remap(Math.random(), [0, 1], [15, 105]),
+    //     )
+    //     this.grabObjects.push(newGrabObject)
+    //     this.tickingObjects.push(newGrabObject)
+    //     this.output.add(newGrabObject.output)
+    //     // this.activeGrabObjectIndex++
 
-        this.context.sounds.propulsionImpact.play()
-        this.context.sounds.propulsionImpact.rate(remap(Math.random(), [0, 1], [0.5, 3]))
-      }
-    }
-    const grabObject = new GrabObject(
-      this.context,
-      this.context.sceneState.currentPlanet,
-      remap(Math.random(), [0, 1], [15, 105]),
-      onLanding,
-      onProjectionDeath,
-    )
+    //     this.context.sceneState.currentPlanet = landedPlanet
 
-    this.grabObjects.push(grabObject)
-    this.tickingObjects.push(grabObject)
-    this.output.add(grabObject.output)
-    // this.context.globalState.__onChange("isIntro", () => this.setEvents())
+    //     this.context.sounds.propulsionImpact.play()
+    //     this.context.sounds.propulsionImpact.rate(remap(Math.random(), [0, 1], [0.5, 3]))
+    //   }
+    // }
+
     this.setEvents()
   }
 
   private queryController() {
     if (this.controllerStock.length === 0) {
       const controller = new PeopleController(
+        this.context,
         this.nextIndex,
         this.peopleMesh.mesh,
         this.spritesheet,
       )
       this.peopleMesh.mesh.count++
       this.nextIndex++
-      ;(window as any).i = this.nextIndex
       return controller
     }
     return this.controllerStock.pop()!
@@ -208,13 +198,9 @@ export default class World extends AbstractObject<MainSceneContext> {
     this.context.sounds.propulsionLoop.loop()
 
     for (const controller of controllers) {
+      controller.physicsController.setState("ATTRACTING")
       planet.removePeopleController(controller)
     }
-
-    this.grabObjects[this.activeGrabObjectIndex].setPhysicalPeopleControllers(
-      controllers,
-      this.planets,
-    )
   }
 
   private onMouseUp = () => {
@@ -222,8 +208,8 @@ export default class World extends AbstractObject<MainSceneContext> {
     this.context.sounds.launch.play()
     this.context.sounds.launch.rate(remap(Math.random(), [0, 1], [0.5, 3]))
 
-    this.grabObjects[this.activeGrabObjectIndex].repulsePhysicalPeopleControllers()
-    this.grabObjects[this.activeGrabObjectIndex].disappear()
+    // this.grabObjects[this.activeGrabObjectIndex].repulsePhysicalPeopleControllers()
+    // this.grabObjects[this.activeGrabObjectIndex].disappear()
   }
 
   setEvents() {
@@ -250,13 +236,14 @@ export default class World extends AbstractObject<MainSceneContext> {
       dead.tick(...params)
     }
     for (const grabObject of this.grabObjects) {
-      for (const peopleController of grabObject.peopleControllerTuples) {
-        if (!peopleController[0]) continue //TODO: hlep
-        const physicsObject = peopleController[1]
-        physicsObject.tick(...params)
-      }
-      grabObject.tick()
+      // for (const peopleController of grabObject.peopleControllerTuples) {
+      //   if (!peopleController[0]) continue //TODO: hlep
+      //   const physicsObject = peopleController[1]
+      //   physicsObject.tick(...params)
+      // }
+      grabObject.tick(...params)
     }
+    
     this.peopleMesh.mesh.instanceMatrix.needsUpdate = true
     this.peopleMesh.mesh.geometry.attributes["aIsDead"].needsUpdate = true
   }

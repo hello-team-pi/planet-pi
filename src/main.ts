@@ -183,6 +183,9 @@ if(import.meta.env.MODE === "development"){
   setTimeout(start, 700)
   document.body.appendChild(stats.dom)
   document.body.querySelector<HTMLElement>(".tp-dfwv")!.style.display = "block"
+  setInterval(()=>{
+    console.log("debug : ", (window as any).debug);
+  },500)
 }
 
 const raf = () => {
