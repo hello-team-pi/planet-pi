@@ -148,10 +148,10 @@ globalState.__onChange(
       document.addEventListener("cursordown", () => {
         if (globalState.isIntro) globalState.isIntro = false
       })
-      
+
       setTimeout(() => {
         document.querySelector<HTMLElement>(".hudWrapper .hint")!.style.opacity = "0"
-      }, 3000);
+      }, 3000)
     }
   },
   true,
@@ -179,7 +179,7 @@ const webgl = new WebGL(canvas, globalState, sounds)
 const stats = new Stats()
 
 // "Dev mode"
-setTimeout(start, 700)
+// setTimeout(start, 700)
 // document.body.appendChild(stats.dom)
 
 const raf = () => {
